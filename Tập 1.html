@@ -1,0 +1,2950 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiếng Việt Lớp 5 - Tập Một</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+           TREASURE HUNT — MÀN HÌNH CHỌN NHÂN VẬT & BẢN ĐỒ
+        ============================================================ */
+        #treasureOverlay {
+            position: fixed; inset: 0; z-index: 99000;
+            background: #1a0a00;
+            display: flex; align-items: center; justify-content: center;
+            overflow-y: auto;
+        }
+        #treasureOverlay.hidden { display: none; }
+
+        .th-wrap {
+            width: 100%; max-width: 680px;
+            padding: 20px 16px 32px;
+        }
+
+        /* --- INTRO BANNER --- */
+        .th-banner {
+            background: linear-gradient(135deg, #3d1c02 0%, #7a3b08 50%, #3d1c02 100%);
+            border-radius: 18px;
+            padding: 22px 20px 18px;
+            text-align: center;
+            margin-bottom: 22px;
+            border: 2px solid #c97b10;
+            position: relative; overflow: hidden;
+        }
+        .th-banner::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(45deg,
+                transparent, transparent 12px,
+                rgba(245,200,66,0.05) 12px, rgba(245,200,66,0.05) 24px);
+        }
+        .th-banner-title {
+            font-size: 26px; font-weight: 700;
+            color: #f5c842; letter-spacing: 1px;
+            position: relative; text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .th-banner-sub {
+            font-size: 14px; color: #d4a96a;
+            margin-top: 6px; position: relative; line-height: 1.5;
+        }
+
+        /* --- CHARACTER SELECT --- */
+        .th-section-label {
+            font-size: 12px; font-weight: 700;
+            color: #a07040; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 12px;
+        }
+
+        .th-char-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px; margin-bottom: 20px;
+        }
+        @media (max-width: 480px) {
+            .th-char-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .th-char-card {
+            background: #2a1200;
+            border: 2px solid #5a3010;
+            border-radius: 14px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.15s, background 0.2s;
+            position: relative;
+        }
+        .th-char-card:hover { border-color: #c97b10; transform: translateY(-3px); background: #3a1a04; }
+        .th-char-card.selected {
+            border-color: #f5c842;
+            background: #3d1c02;
+            box-shadow: 0 0 0 3px rgba(245,200,66,0.25);
+        }
+        .th-char-card.selected::after {
+            content: '✓';
+            position: absolute; top: 6px; right: 10px;
+            font-size: 14px; color: #f5c842; font-weight: 700;
+        }
+        .th-char-avatar {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
+            border: 2px solid #5a3010;
+            background: #1a0a00;
+        }
+        .th-char-name { font-size: 13px; font-weight: 700; color: #f5c842; }
+        .th-char-trait { font-size: 11px; color: #a07040; margin-top: 3px; }
+
+        .th-start-btn {
+            display: block; width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #c97b10, #e8a030);
+            color: white; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 700;
+            cursor: pointer; letter-spacing: 0.5px;
+            transition: opacity 0.2s, transform 0.15s;
+            box-shadow: 0 4px 16px rgba(201,123,16,0.4);
+        }
+        .th-start-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+        .th-start-btn:not(:disabled):hover { opacity: 0.92; transform: translateY(-2px); }
+
+        /* --- MAP SCREEN --- */
+        #thMapScreen { display: none; }
+        #thMapScreen.active { display: block; }
+
+        .th-map-header {
+            display: flex; align-items: center;
+            gap: 14px; margin-bottom: 16px;
+        }
+        .th-hero-badge {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            border: 2px solid #c97b10;
+            background: #2a1200; flex-shrink: 0;
+        }
+        .th-hero-info { flex: 1; }
+        .th-hero-name { font-size: 16px; font-weight: 700; color: #f5c842; }
+        .th-hero-sub { font-size: 12px; color: #a07040; }
+        .th-key-counter {
+            font-size: 13px; color: #d4a96a;
+            background: #2a1200; border: 1px solid #5a3010;
+            padding: 6px 12px; border-radius: 20px;
+        }
+
+        .th-progress-row {
+            display: flex; align-items: center;
+            gap: 10px; margin-bottom: 16px;
+        }
+        .th-progress-bar-wrap {
+            flex: 1; height: 10px;
+            background: #2a1200;
+            border-radius: 5px; overflow: hidden;
+            border: 1px solid #5a3010;
+        }
+        .th-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c97b10, #f5c842);
+            border-radius: 5px;
+            transition: width 0.6s ease;
+        }
+        .th-progress-text { font-size: 12px; color: #a07040; white-space: nowrap; }
+
+        .th-keys-box {
+            background: #2a1200;
+            border: 1px solid #5a3010;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+        .th-keys-label { font-size: 12px; color: #a07040; margin-bottom: 10px; }
+        .th-keys-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .th-key-slot {
+            width: 38px; height: 38px;
+            border-radius: 8px;
+            border: 2px dashed #5a3010;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            background: transparent;
+            transition: all 0.4s;
+        }
+        .th-key-slot.filled {
+            border-style: solid; border-color: #c97b10;
+            background: #3d1c02;
+            animation: thKeyPop 0.5s ease;
+        }
+        @keyframes thKeyPop {
+            0% { transform: scale(0.3) rotate(-30deg); opacity: 0; }
+            60% { transform: scale(1.3) rotate(8deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        .th-chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        @media (max-width: 400px) {
+            .th-chapters-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .th-chapter-card {
+            border-radius: 12px;
+            padding: 14px 8px;
+            text-align: center;
+            border: 2px solid #5a3010;
+            background: #2a1200;
+            position: relative;
+            transition: border-color 0.2s, transform 0.15s;
+        }
+        .th-chapter-card.done {
+            border-color: #c97b10;
+            background: linear-gradient(135deg, #3d1c02, #2a1000);
+        }
+        .th-chapter-card.unlocked {
+            cursor: pointer;
+            border-color: #c97b10;
+            border-width: 2px;
+            box-shadow: 0 0 0 2px rgba(201,123,16,0.2);
+        }
+        .th-chapter-card.unlocked:hover { transform: translateY(-2px); }
+        .th-chapter-card.locked { opacity: 0.4; }
+
+        .th-chapter-icon { font-size: 28px; margin-bottom: 6px; }
+        .th-chapter-num { font-size: 11px; color: #a07040; margin-bottom: 3px; }
+        .th-chapter-name { font-size: 12px; font-weight: 600; color: #f5c842; line-height: 1.3; }
+        .th-done-stamp { position: absolute; top: 6px; right: 8px; font-size: 16px; }
+
+        /* --- TREASURE SCREEN --- */
+        #thTreasureScreen { display: none; }
+        #thTreasureScreen.active { display: block; }
+
+        .th-treasure-wrap {
+            text-align: center; padding: 2rem 1rem;
+        }
+        .th-chest-emoji {
+            font-size: 90px; display: block;
+            margin-bottom: 12px;
+            animation: thChestFloat 2.5s ease-in-out infinite;
+        }
+        @keyframes thChestFloat {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        .th-treasure-title {
+            font-size: 28px; font-weight: 800;
+            color: #f5c842; margin-bottom: 10px;
+        }
+        .th-treasure-sub {
+            font-size: 14px; color: #d4a96a;
+            margin-bottom: 24px; line-height: 1.7;
+        }
+        .th-ticket {
+            background: linear-gradient(135deg, #3d1c02, #5a2a08);
+            border-radius: 18px; padding: 22px 20px;
+            margin: 0 auto 20px; max-width: 340px;
+            border: 2px solid #c97b10;
+            position: relative; overflow: hidden;
+        }
+        .th-ticket::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: repeating-linear-gradient(-45deg,
+                transparent, transparent 8px,
+                rgba(245,200,66,0.06) 8px, rgba(245,200,66,0.06) 16px);
+        }
+        .th-ticket-store {
+            font-size: 12px; color: #d4a96a;
+            text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 10px; position: relative;
+        }
+        .th-ticket-main {
+            font-size: 22px; font-weight: 800;
+            color: #f5c842; position: relative;
+            margin-bottom: 5px;
+        }
+        .th-ticket-sub { font-size: 13px; color: #d4a96a; position: relative; }
+        .th-ticket-name {
+            font-size: 20px; font-weight: 700;
+            color: #f5c842; margin-top: 12px; position: relative;
+        }
+        .th-ticket-holes {
+            display: flex; justify-content: space-between;
+            margin-top: 16px; position: relative;
+        }
+        .th-hole {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(201,123,16,0.3);
+        }
+        .th-reset-btn {
+            background: #2a1200; border: 1px solid #5a3010;
+            color: #a07040; border-radius: 10px;
+            padding: 10px 22px; font-size: 13px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .th-reset-btn:hover { background: #3a1a04; color: #d4a96a; }
+
+        /* --- KEY POP-UP AFTER SUBMIT --- */
+        #thKeyPopup {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85); z-index: 99999;
+            align-items: center; justify-content: center;
+        }
+        #thKeyPopup.open { display: flex; }
+        .th-key-popup-card {
+            background: linear-gradient(135deg, #3d1c02, #5a2a08);
+            border: 2px solid #f5c842;
+            border-radius: 22px; padding: 2rem 2rem 1.5rem;
+            text-align: center; max-width: 320px; width: 90%;
+            box-shadow: 0 0 60px rgba(245,200,66,0.3);
+        }
+        .th-popup-emoji { font-size: 56px; margin-bottom: 10px; }
+        .th-popup-title { font-size: 20px; font-weight: 800; color: #f5c842; margin-bottom: 8px; }
+        .th-popup-sub { font-size: 13px; color: #d4a96a; line-height: 1.6; margin-bottom: 18px; }
+        .th-popup-btn {
+            background: linear-gradient(135deg, #c97b10, #e8a030);
+            color: white; border: none; border-radius: 10px;
+            padding: 11px 28px; font-size: 14px; font-weight: 700;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .th-popup-btn:hover { opacity: 0.9; }
+
+        /* --- CONTINUE OR CHANGE POPUP --- */
+        #thContinuePopup {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.88); z-index: 99999;
+            align-items: center; justify-content: center;
+        }
+        #thContinuePopup.open { display: flex; }
+        .th-continue-card {
+            background: linear-gradient(135deg, #3d1c02, #5a2a08);
+            border: 2px solid #f5c842;
+            border-radius: 22px; padding: 2rem;
+            text-align: center; max-width: 340px; width: 90%;
+            box-shadow: 0 0 60px rgba(245,200,66,0.25);
+        }
+        .th-continue-avatar {
+            font-size: 64px; margin-bottom: 10px;
+            animation: thCharBounce 1.2s ease-in-out infinite;
+        }
+        @keyframes thCharBounce {
+            0%,100% { transform: translateY(0) rotate(-3deg); }
+            50%      { transform: translateY(-8px) rotate(3deg); }
+        }
+        .th-continue-title { font-size: 18px; font-weight: 800; color: #f5c842; margin-bottom: 6px; }
+        .th-continue-sub   { font-size: 13px; color: #d4a96a; line-height: 1.6; margin-bottom: 20px; }
+        .th-continue-btns  { display: flex; flex-direction: column; gap: 10px; }
+        .th-btn-continue {
+            background: linear-gradient(135deg, #c97b10, #e8a030);
+            color: white; border: none; border-radius: 12px;
+            padding: 13px; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .th-btn-continue:hover { opacity: 0.9; }
+        .th-btn-change {
+            background: #2a1200; color: #d4a96a;
+            border: 1px solid #5a3010; border-radius: 12px;
+            padding: 11px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .th-btn-change:hover { background: #3a1a04; }
+
+        /* --- CONFETTI --- */
+        .th-confetti-container {
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 99998;
+            overflow: hidden;
+        }
+        .th-confetti-piece {
+            position: absolute; top: -12px;
+            border-radius: 3px;
+            animation: thConfettiFall linear forwards;
+        }
+        @keyframes thConfettiFall {
+            to { transform: translateY(110vh) rotate(900deg); opacity: 0; }
+        }
+
+        /* ============================================================
+           APP CHÍNH — giữ nguyên
+        ============================================================ */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .header-left { display: flex; align-items: center; gap: 15px; }
+
+        .menu-btn {
+            background: rgba(255,255,255,0.2);
+            border: none; color: white;
+            padding: 8px 12px; border-radius: 5px;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .menu-btn:hover { background: rgba(255,255,255,0.3); }
+        .header-title { font-size: 18px; font-weight: 600; }
+        .header-icons { display: flex; gap: 10px; align-items: center; }
+
+        /* Hero badge nhỏ trên header */
+        #headerHeroBadge {
+            font-size: 18px; cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            border: none; color: white;
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; position: relative;
+        }
+        #headerHeroBadge:hover { background: rgba(255,255,255,0.4); transform: scale(1.15); }
+        #headerHeroBadge::after {
+            content: 'Đổi nhân vật';
+            position: absolute; bottom: -26px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.75); color: white;
+            font-size: 10px; white-space: nowrap;
+            padding: 3px 7px; border-radius: 4px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        #headerHeroBadge:hover::after { opacity: 1; }
+        #headerKeyBadge {
+            font-size: 12px; font-weight: 700;
+            background: rgba(245,200,66,0.25);
+            color: #f5c842; border: 1px solid rgba(245,200,66,0.5);
+            padding: 4px 10px; border-radius: 20px;
+            cursor: pointer;
+        }
+        #headerKeyBadge:hover { background: rgba(245,200,66,0.4); }
+
+        .container { display: flex; flex: 1; overflow: hidden; }
+
+        .sidebar {
+            position: fixed; left: 0; top: 60px; bottom: 0;
+            width: 250px; background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 100; transition: margin-left 0.3s ease;
+            overflow-y: auto;
+        }
+        .sidebar.collapsed { margin-left: -250px; }
+        .sidebar-header { padding: 20px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; }
+        .sidebar-header h3 { color: #333; font-size: 16px; }
+        .sidebar-content { padding: 10px; }
+
+        .lesson-item {
+            padding: 12px 15px; margin-bottom: 5px;
+            background: #f8f9fa; border-radius: 8px;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .lesson-item:hover { background: #e9ecef; transform: translateX(5px); }
+        .lesson-item.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+
+        .toolbar {
+            position: fixed; left: 10px; top: 55%;
+            transform: translateY(-50%);
+            background: white; border-radius: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column;
+            padding: 10px; gap: 5px; z-index: 50;
+        }
+
+        .tool-btn {
+            background: #f8f9fa; border: none; color: #495057;
+            width: 40px; height: 40px; border-radius: 8px;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .tool-btn:hover { background: #667eea; color: white; transform: scale(1.1); }
+        .tool-btn.active { background: #667eea; color: white; }
+
+        .header-icons .help-btn {
+            background: #667eea; color: white; border-radius: 10px;
+            width: 38px; height: 38px; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 16px; border: 1px solid rgba(255,255,255,0.15);
+        }
+        .header-icons .help-btn:hover {
+            background: #5562d8;
+            transform: scale(1.05);
+        }
+
+        .guide-tool-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .guide-tool-card {
+            background: #f7f8ff;
+            border: 1px solid #dde2f0;
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .guide-tool-icon {
+            width: 38px; height: 38px;
+            border-radius: 12px;
+            background: #667eea;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .guide-tool-card strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: #2f3a66;
+        }
+        .guide-tool-card p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #556080;
+        }
+
+        .guide-features li {
+            padding: 8px 0; font-size: 14px; color: #555; line-height: 1.5;
+        }
+        .guide-features li::before {
+            content: '▪ '; color: #667eea; font-weight: 700; margin-right: 6px;
+        }
+
+        .guide-footer {
+            padding: 16px 20px; background: #f8f9fa;
+            border-top: 1px solid #e0e0e0; border-radius: 0 0 16px 16px;
+            text-align: center;
+        }
+
+        .guide-btn-close {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; border-radius: 8px;
+            padding: 10px 28px; font-size: 14px;
+            font-weight: 600; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .guide-btn-close:hover { opacity: 0.88; }
+
+        .color-picker {
+            position: absolute; left: 80px; top: 50%; transform: translateY(-50%);
+            background: white; border-radius: 12px; padding: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; gap: 10px; z-index: 100;
+        }
+        .color-picker.active { display: flex; }
+
+        .color-option {
+            width: 30px; height: 30px; border-radius: 50%;
+            cursor: pointer; border: 3px solid transparent; transition: all 0.3s;
+        }
+
+        .color-option:hover { transform: scale(1.2); }
+        .color-option.selected { border-color: #333; box-shadow: 0 0 0 2px white, 0 0 0 4px #333; }
+
+        .pen-size-selector {
+            position: absolute; left: 130px; top: 50%; transform: translateY(-50%);
+            background: white; border-radius: 12px; padding: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; gap: 10px; z-index: 100;
+        }
+        .pen-size-selector.active { display: flex; }
+
+        .size-option {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px; border-radius: 8px; cursor: pointer; transition: all 0.3s;
+        }
+        .size-option:hover { background: #f0f0f0; }
+        .size-option.selected { background: #667eea; color: white; }
+        .size-preview { width: 30px; background: #333; border-radius: 2px; }
+        .size-option.selected .size-preview { background: white; }
+
+        .viewer {
+            flex: 1; display: flex; flex-direction: column;
+            background: #e8e8e8; position: relative; margin-left: 70px;
+        }
+
+        .viewer-content {
+            flex: 1; overflow: auto; padding: 20px;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+
+        .page-container {
+            display: flex; gap: 20px;
+            justify-content: center; align-items: flex-start;
+        }
+
+        .page-wrapper {
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            border-radius: 5px; overflow: hidden;
+            background: white;
+        }
+        .page-wrapper.active-tool { cursor: crosshair; }
+
+        .page-canvas, .annotation-canvas { display: block; }
+        .annotation-canvas { position: absolute; top: 0; left: 0; pointer-events: auto; }
+
+        .controls-bar {
+            background: white; padding: 15px;
+            display: flex; justify-content: center; align-items: center;
+            gap: 30px; border-top: 1px solid #e0e0e0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .control-group { display: flex; align-items: center; gap: 10px; }
+
+        .control-btn {
+            background: #f8f9fa; border: 1px solid #dee2e6; color: #495057;
+            width: 36px; height: 36px; border-radius: 8px;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .control-btn:hover:not(:disabled) {
+            background: #667eea; color: white;
+            border-color: #667eea; transform: translateY(-2px);
+        }
+        .control-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .page-info, .zoom-info {
+            background: #f8f9fa; border: 1px solid #dee2e6; color: #495057;
+            font-weight: 600; min-width: 60px; height: 35px;
+            line-height: 35px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .text-input-popup {
+            position: fixed; background: white; border: 2px solid #667eea;
+            border-radius: 8px; padding: 8px; display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 2000;
+        }
+        .text-input-popup input { border: none; outline: none; padding: 5px; font-size: 14px; min-width: 200px; }
+
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9000; }
+        .toast {
+            background: white; padding: 12px 20px;
+            border-radius: 8px; margin-top: 10px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease; min-width: 250px;
+        }
+        .toast.success { border-left: 4px solid #28a745; }
+        .toast.error   { border-left: 4px solid #dc3545; }
+        .toast.info    { border-left: 4px solid #17a2b8; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
+        }
+
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none; align-items: center; justify-content: center; z-index: 8000;
+        }
+        .loading-overlay.active { display: flex; }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid #f3f3f3; border-top: 5px solid #667eea;
+            border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+        .zone-overlay {
+            position: absolute; border: 2px dashed #667eea;
+            background: rgba(102,126,234,0.06);
+            cursor: pointer; z-index: 200; border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .zone-overlay:hover { background: rgba(102,126,234,0.12); }
+
+        .zone-label {
+            position: absolute; top: 4px; left: 6px;
+            font-size: 11px; font-weight: 700;
+            color: #667eea; background: white;
+            padding: 1px 6px; border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            pointer-events: none; display: none;
+        }
+
+        .zone-edit-btn {
+            position: absolute; top: 4px; right: 4px;
+            width: 26px; height: 26px;
+            background: #667eea; border: none; border-radius: 50%;
+            color: white; font-size: 11px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 201;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .zone-edit-btn:hover { transform: scale(1.15); background: #764ba2; }
+
+        .zone-delete-btn {
+            position: absolute; top: 4px; right: 34px;
+            width: 26px; height: 26px;
+            background: #dc3545; border: none; border-radius: 50%;
+            color: white; font-size: 11px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25); z-index: 201;
+            transition: transform 0.2s;
+        }
+        .zone-delete-btn:hover { transform: scale(1.15); }
+
+        .selection-box {
+            position: fixed; border: 2px dashed #ff6b6b;
+            background: rgba(255,107,107,0.08);
+            pointer-events: none; z-index: 5000; display: none;
+        }
+
+        .detecting-overlay {
+            position: absolute; inset: 0;
+            background: rgba(102,126,234,0.12);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 400; border-radius: 5px;
+        }
+        .detecting-text {
+            background: white; padding: 8px 16px; border-radius: 20px;
+            font-size: 13px; color: #667eea; font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .home-btn {
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            padding: 8px 12px; border-radius: 5px;
+            cursor: pointer; transition: all 0.3s;
+            text-decoration: none;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .home-btn:hover { background: rgba(255,255,255,0.35); }
+
+        #exModal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(10,10,20,0.88);
+            z-index: 7000; align-items: center;
+            justify-content: center; flex-direction: column; gap: 10px;
+        }
+        #exModal.open { display: flex; }
+
+        .ex-toolbar {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+            background: white; padding: 8px 16px;
+            border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            max-width: 96vw;
+        }
+        .ex-title { font-weight: 700; font-size: 14px; color: #333; margin-right: 4px; }
+        .ex-sep { width: 1px; height: 26px; background: #e0e0e0; flex-shrink: 0; }
+
+        .ex-tool {
+            width: 34px; height: 34px; border-radius: 7px; border: none;
+            background: #f0f2ff; color: #667eea; font-size: 14px;
+            cursor: pointer; display: flex; align-items: center;
+            justify-content: center; transition: all 0.2s;
+        }
+        .ex-tool:hover, .ex-tool.active { background: #667eea; color: white; }
+
+        .ex-dot {
+            width: 22px; height: 22px; border-radius: 50%;
+            cursor: pointer; border: 3px solid transparent;
+            flex-shrink: 0; transition: transform 0.2s;
+        }
+        .ex-dot:hover { transform: scale(1.2); }
+        .ex-dot.sel { border-color: #333; }
+
+        .ex-btn {
+            padding: 6px 14px; border-radius: 7px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .ex-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .ex-primary:hover { opacity: 0.88; }
+        .ex-close { background: #f8f9fa; color: #555; border: 1px solid #dee2e6; }
+        .ex-close:hover { background: #e9ecef; }
+
+        .ex-body {
+            position: relative; border-radius: 8px; overflow: hidden;
+            box-shadow: 0 8px 48px rgba(0,0,0,0.5); background: white;
+        }
+        #exPageCanvas { display: block; }
+        #exDrawCanvas { position: absolute; top: 0; left: 0; cursor: crosshair; }
+
+        #exResult {
+            display: none; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.97);
+            flex-direction: column; align-items: center;
+            justify-content: center; gap: 10px;
+            padding: 24px; text-align: center; border-radius: 8px;
+        }
+        #exResult.open { display: flex; }
+
+        .ex-r-emoji { font-size: 42px; }
+        .ex-r-score {
+            font-size: 54px; font-weight: 800; line-height: 1;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-text-fill-color: transparent;
+        }
+        .ex-r-stars { font-size: 28px; letter-spacing: 4px; }
+        .ex-r-fb { font-size: 14px; color: #444; max-width: 380px; line-height: 1.6; }
+
+        #exSpinner {
+            display: none; position: absolute; inset: 0;
+            background: rgba(255,255,255,0.9); border-radius: 8px;
+            align-items: center; justify-content: center; flex-direction: column; gap: 12px;
+        }
+        #exSpinner.open { display: flex; }
+        .ex-spin {
+            width: 44px; height: 44px;
+            border: 4px solid #e0e4ff; border-top-color: #667eea;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        .ex-spin-lbl { font-size: 13px; color: #667eea; font-weight: 600; }
+
+        #exTextPop {
+            display: none; position: fixed;
+            background: white; border: 2px solid #667eea;
+            border-radius: 8px; padding: 7px; z-index: 10000;
+        }
+        #exTextPop input { border: none; outline: none; font-size: 14px; min-width: 180px; }
+
+        /* ============================================================
+           GUIDE MODAL
+        ============================================================ */
+        #guideModal {
+            display: none; position: fixed;
+            inset: 0; z-index: 10001;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+            overflow-y: auto; padding: 20px;
+        }
+        #guideModal.open { display: flex; }
+
+        .guide-content {
+            background: white; border-radius: 16px;
+            max-width: 620px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .guide-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; padding: 24px 20px 16px;
+            border-radius: 16px 16px 0 0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .guide-title {
+            font-size: 24px; font-weight: 800;
+            margin: 0; display: flex; align-items: center; gap: 10px;
+        }
+
+        .guide-close {
+            background: rgba(255,255,255,0.2); border: none;
+            color: white; width: 32px; height: 32px;
+            border-radius: 8px; cursor: pointer;
+            font-size: 18px; display: flex;
+            align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .guide-close:hover { background: rgba(255,255,255,0.35); }
+
+        .guide-body {
+            padding: 24px 20px;
+        }
+
+        .guide-section {
+            margin-bottom: 22px; padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .guide-section:last-child { border-bottom: none; }
+
+        .guide-section-title {
+            font-size: 16px; font-weight: 700;
+            color: #667eea; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .guide-section-text {
+            font-size: 14px; color: #555;
+            line-height: 1.6; margin: 0;
+        }
+
+        .guide-features {
+            list-style: none; padding: 0; margin: 0;
+        }
+
+        .guide-features li {
+            padding: 8px 0; font-size: 14px; color: #555; line-height: 1.5;
+        }
+
+        .guide-features li::before {
+            content: '▪ '; color: #667eea; font-weight: 700; margin-right: 6px;
+        }
+
+        .guide-footer {
+            padding: 16px 20px; background: #f8f9fa;
+            border-top: 1px solid #e0e0e0; border-radius: 0 0 16px 16px;
+            text-align: center;
+        }
+
+        .guide-btn-close {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; border-radius: 8px;
+            padding: 10px 28px; font-size: 14px;
+            font-weight: 600; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .guide-btn-close:hover { opacity: 0.88; }
+
+        @media (max-width: 768px) {
+            .sidebar { position: absolute; z-index: 100; height: 100%; }
+            .toolbar { left: 10px; }
+            .controls-bar { flex-wrap: wrap; gap: 15px; }
+        }
+
+        .tts-btn {
+            position: absolute; top: 6px; right: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; border: none; border-radius: 50%;
+            width: 28px; height: 28px;
+            font-size: 11px; cursor: pointer; z-index: 300;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 6px rgba(102,126,234,0.4); transition: all 0.2s;
+        }
+        .tts-btn:hover { opacity: 0.88; transform: scale(1.1); }
+        .tts-btn.playing { background: linear-gradient(135deg, #e53e3e, #c53030); }
+
+        .music-btn {
+            background: rgba(255,255,255,0.2); border: none; color: white;
+            width: 36px; height: 36px; border-radius: 8px;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; position: relative;
+        }
+        .music-btn:hover { background: rgba(255,255,255,0.35); }
+        .music-btn.playing { background: rgba(30,215,96,0.35); }
+        .music-btn .music-wave {
+            position: absolute; bottom: 4px; right: 4px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #1ed760; display: none;
+        }
+        .music-btn.playing .music-wave { display: block; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.6} }
+
+        /* Spotify popup player */
+        #spotifyPopup {
+            display: none; position: fixed;
+            top: 68px; right: 16px; z-index: 6000;
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            animation: spotifyIn 0.25s ease;
+        }
+        #spotifyPopup.open { display: block; }
+        @keyframes spotifyIn {
+            from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================================
+     TREASURE HUNT OVERLAY
+============================================================ -->
+<div id="treasureOverlay">
+    <div class="th-wrap">
+
+        <!-- CHARACTER SELECT SCREEN -->
+        <div id="thCharScreen">
+            <div class="th-banner">
+                <div class="th-banner-title">⚔️ Đại Phiêu Lưu Tiếng Việt</div>
+                <div class="th-banner-sub">Hoàn thành mỗi bài tập để nhận 1 chìa khóa 🗝️<br>Tích đủ <strong id="thVoucherThreshold" style="color:#f5c842">10 tiết</strong> → nhận voucher Fahasa!</div>
+            </div>
+
+            <div class="th-section-label" style="color:#a07040;">Chọn nhân vật của em</div>
+
+            <div class="th-char-grid">
+                <div class="th-char-card" onclick="thSelectChar(this, 0)">
+                    <div class="th-char-avatar">🦁</div>
+                    <div class="th-char-name">Sư Tử Dũng</div>
+                    <div class="th-char-trait">Dũng cảm · Mạnh mẽ</div>
+                </div>
+                <div class="th-char-card" onclick="thSelectChar(this, 1)">
+                    <div class="th-char-avatar">🦋</div>
+                    <div class="th-char-name">Bướm Tiên</div>
+                    <div class="th-char-trait">Thông minh · Xinh đẹp</div>
+                </div>
+                <div class="th-char-card" onclick="thSelectChar(this, 2)">
+                    <div class="th-char-avatar">🐉</div>
+                    <div class="th-char-name">Rồng Vàng</div>
+                    <div class="th-char-trait">Huyền bí · Tài giỏi</div>
+                </div>
+                <div class="th-char-card" onclick="thSelectChar(this, 3)">
+                    <div class="th-char-avatar">🦊</div>
+                    <div class="th-char-name">Cáo Khôn</div>
+                    <div class="th-char-trait">Nhanh nhẹn · Láu cá</div>
+                </div>
+            </div>
+
+            <button class="th-start-btn" id="thStartBtn" disabled onclick="thStartAdventure()">
+                🗺️ Bắt đầu hành trình tìm kho báu!
+            </button>
+        </div>
+
+        <!-- MAP SCREEN -->
+        <div id="thMapScreen">
+            <div class="th-map-header">
+                <div class="th-hero-badge" id="thHeroBadge">🦁</div>
+                <div class="th-hero-info">
+                    <div class="th-hero-name" id="thHeroName">Sư Tử Dũng</div>
+                    <div class="th-hero-sub">đang trên đường tìm kho báu bí ẩn...</div>
+                </div>
+                <div class="th-key-counter">🗝️ <span id="thKeyCount">0</span> chìa | 🎫 <span id="thVoucherCount">0</span> phiếu</div>
+            </div>
+
+            <div class="th-progress-row">
+                <div class="th-progress-bar-wrap">
+                    <div class="th-progress-fill" id="thProgressFill" style="width:0%"></div>
+                </div>
+                <div class="th-progress-text" id="thProgressText">0%</div>
+            </div>
+
+            <div class="th-keys-box">
+                <div class="th-keys-label">🗝️ Chìa khóa trong chu kỳ hiện tại (mỗi <span id="thCycleLabel">10</span> tiết = 1 voucher)</div>
+                <div class="th-keys-row" id="thKeysRow"></div>
+            </div>
+
+            <div class="th-section-label" style="color:#a07040; margin-bottom:10px;">Bản đồ hành trình — 18 tuần học</div>
+            <div class="th-chapters-grid" id="thChaptersGrid"></div>
+
+            <div style="margin-top:16px; text-align:center;">
+                <button onclick="thEnterApp()" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:12px;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer;">
+                    📖 Vào học ngay!
+                </button>
+            </div>
+        </div>
+
+        <!-- TREASURE SCREEN -->
+        <div id="thTreasureScreen">
+            <div class="th-treasure-wrap">
+                <span class="th-chest-emoji">🎁</span>
+                <div class="th-treasure-title">🏆 Kho Báu Đã Mở!</div>
+                <div class="th-treasure-sub">
+                    Tuyệt vời! Em đã vượt qua cả 10 tuần học<br>
+                    và thu thập đủ 110 chìa khóa huyền bí!<br>
+                    Đây là phần thưởng xứng đáng cho em! 🌟
+                </div>
+
+                <div class="th-ticket">
+                    <div class="th-ticket-store">✦ Nhà Sách Fahasa ✦</div>
+                    <div class="th-ticket-main">🎮 Phiếu Tích Điểm số <span id="thVoucherNum">1</span></div>
+                    <div class="th-ticket-sub">Mua đồ chơi bất kỳ tại Fahasa</div>
+                    <div class="th-ticket-name" id="thTicketName">Dành tặng: Sư Tử Dũng</div>
+                    <div class="th-ticket-holes">
+                        <div class="th-hole"></div><div class="th-hole"></div>
+                        <div class="th-hole"></div><div class="th-hole"></div>
+                        <div class="th-hole"></div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                    <button onclick="thEnterApp()" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;">
+                        📖 Vào học tiếp
+                    </button>
+                    <button class="th-reset-btn" onclick="thResetGame()">↩ Bắt đầu lại</button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /.th-wrap -->
+</div><!-- /#treasureOverlay -->
+
+<!-- Key popup -->
+<div id="thKeyPopup">
+    <div class="th-key-popup-card">
+        <div class="th-popup-emoji" id="thPopupEmoji">🗝️</div>
+        <div class="th-popup-title" id="thPopupTitle">Thu được chìa khóa!</div>
+        <div class="th-popup-sub" id="thPopupSub">Hoàn thành tuần học! Em nhận được 1 chìa khóa vàng.</div>
+        <button class="th-popup-btn" id="thPopupBtn" onclick="thCloseKeyPopup()">Tuyệt vời! →</button>
+    </div>
+</div>
+
+<!-- Guide Modal -->
+<div id="guideModal">
+    <div class="guide-content">
+        <div class="guide-header">
+            <div class="guide-title">❓ Hướng Dẫn Sử Dụng</div>
+            <button class="guide-close" onclick="closeGuide()">✕</button>
+        </div>
+
+        <div class="guide-body">
+            <!-- Game Features -->
+            <div class="guide-section">
+                <div class="guide-section-title">🎮 Hệ Thống Kho Báu & Chìa Khóa</div>
+                <p class="guide-section-text">
+                    Hoàn thành mỗi bài tập để nhận <strong>1 chìa khóa</strong>. Tích đủ <strong>10 tiết</strong> → nhận <strong>1 voucher Fahasa</strong>!
+                </p>
+                <ul class="guide-features">
+                    <li><strong>Chọn nhân vật:</strong> Click vào nhân vật (Sư Tử Dũng, Bướm Tiên, Rồng Vàng, Cáo Khôn) rồi bắt đầu</li>
+                    <li><strong>Xem tiến độ:</strong> Click vào biểu tượng 🗝️ ở góc phải để xem bản đồ tiến trình</li>
+                    <li><strong>Thu chìa khóa:</strong> Nộp bài đạt điểm sẽ tự động nhận chìa khóa 🗝️</li>
+                    <li><strong>Nhận phiếu:</strong> Khi đủ 10 chìa, em sẽ nhận phiếu mua đồ chơi 🎫</li>
+                </ul>
+            </div>
+
+            <!-- Drawing Tools -->
+            <div class="guide-section">
+                <div class="guide-section-title">🎨 Công Cụ Vẽ & Chỉnh Sửa</div>
+                <div class="guide-tool-grid">
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-mouse-pointer"></i></div>
+                        <div>
+                            <strong>Con trỏ</strong>
+                            <p>Chọn và di chuyển vùng hoặc chọn công cụ khác.</p>
+                        </div>
+                    </div>
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-pen"></i></div>
+                        <div>
+                            <strong>Bút vẽ</strong>
+                            <p>Vẽ tự do trên bài học như viết bằng bút màu.</p>
+                        </div>
+                    </div>
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-highlighter"></i></div>
+                        <div>
+                            <strong>Highlight</strong>
+                            <p>Làm nổi bật chữ quan trọng với màu sáng.</p>
+                        </div>
+                    </div>
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-underline"></i></div>
+                        <div>
+                            <strong>Gạch chân</strong>
+                            <p>Gạch chân những phần cần chú ý hoặc ghi nhớ.</p>
+                        </div>
+                    </div>
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-font"></i></div>
+                        <div>
+                            <strong>Thêm chữ</strong>
+                            <p>Viết chữ trực tiếp lên bài tập với kích thước tùy chọn.</p>
+                        </div>
+                    </div>
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-eraser"></i></div>
+                        <div>
+                            <strong>Tẩy</strong>
+                            <p>Xóa những vết vẽ không cần thiết nhanh chóng.</p>
+                        </div>
+                    </div>
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-vector-square"></i></div>
+                        <div>
+                            <strong>Tạo vùng</strong>
+                            <p>Vẽ khung bài tập để đánh dấu vùng làm bài.</p>
+                        </div>
+                    </div>
+                    <div class="guide-tool-card">
+                        <div class="guide-tool-icon"><i class="fas fa-undo"></i></div>
+                        <div>
+                            <strong>Hoàn tác / Làm lại</strong>
+                            <p>Quay lại bước trước hoặc phục hồi thao tác vừa xóa.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Features -->
+            <div class="guide-section">
+                <div class="guide-section-title">⚙️ Các Chức Năng Khác</div>
+                <ul class="guide-features">
+                    <li><strong>🏠 Home:</strong> Quay lại trang chủ</li>
+                    <li><strong>☰ Menu:</strong> Mở mục lục bài học</li>
+                    <li><strong>🎵 Nhạc Spotify:</strong> Bật/tắt nhạc nền học tập</li>
+                    <li><strong>🔄 Bắt đầu buổi mới:</strong> Xóa bài làm cũ, bắt đầu làm lại từ đầu</li>
+                    <li><strong>🔍 Phóng to/Thu nhỏ:</strong> Dùng nút +/- để điều chỉnh kích thước</li>
+                    <li><strong>⛶ Fullscreen:</strong> Hiển thị toàn màn hình</li>
+                    <li><strong>✕ Thoát:</strong> Đóng ứng dụng</li>
+                </ul>
+            </div>
+
+            <!-- Tips -->
+            <div class="guide-section">
+                <div class="guide-section-title">💡 Mẹo & Lưu Ý</div>
+                <ul class="guide-features">
+                    <li>Tất cả bài làm của em sẽ được lưu tự động</li>
+                    <li>Có thể quay lại làm lại bất cứ bài nào đã làm trước đó</li>
+                    <li>Chỉ được trao chìa khóa 1 lần cho mỗi bài tập</li>
+                    <li>Phiếu Fahasa có thể được in ra để bố/mẹ sử dụng</li>
+                    <li>Hãy chăm chỉ hoàn thành tất cả 18 tuần để mở kho báu! 🎁</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="guide-footer">
+            <button class="guide-btn-close" onclick="closeGuide()">Đã hiểu! ✓</button>
+        </div>
+    </div>
+</div>
+
+<!-- Continue or change character popup -->
+<div id="thContinuePopup">
+    <div class="th-continue-card">
+        <div class="th-continue-avatar" id="thContinueAvatar">🦁</div>
+        <div class="th-continue-title" id="thContinueTitle">Chào mừng trở lại!</div>
+        <div class="th-continue-sub" id="thContinueSub">Em có muốn tiếp tục với nhân vật này không?</div>
+        <div class="th-continue-btns">
+            <button class="th-btn-continue" id="thBtnContinue" onclick="thConfirmContinue()">
+                ▶ Tiếp tục với nhân vật này!
+            </button>
+            <button class="th-btn-change" onclick="thConfirmChange()">
+                🔄 Đổi nhân vật khác
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Confetti -->
+<div class="th-confetti-container" id="thConfettiContainer"></div>
+
+<!-- ============================================================
+     APP CHÍNH
+============================================================ -->
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
+<header>
+    <div class="header-left">
+        <a href="Trang chủ.html" class="home-btn" title="Về trang chủ"><i class="fas fa-home"></i></a>
+        <button class="menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="header-title">Tiếng Việt Lớp 5 - Tập Một</div>
+    </div>
+    <div class="header-icons">
+        <!-- Treasure hunt badges -->
+        <button id="headerHeroBadge" onclick="thShowCharSelect()" title="Đổi nhân vật">🦁</button>
+        <span id="headerKeyBadge" onclick="thShowMap()" title="Xem bản đồ kho báu" style="cursor:pointer;">🗝️ 0 | 🎫 0</span>
+
+        <button class="tool-btn help-btn" onclick="openGuide()" title="Hướng dẫn chức năng"><i class="fas fa-question-circle"></i></button>
+
+        <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Bật nhạc Spotify">
+            <i class="fas fa-music"></i>
+            <span class="music-wave"></span>
+        </button>
+        <button onclick="manualResetSession()" title="Bắt đầu buổi học mới (xóa bài làm cũ)"
+            style="background:rgba(255,255,255,0.2);border:none;color:white;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.3s;"
+            onmouseover="this.style.background='rgba(255,255,255,0.35)'"
+            onmouseout="this.style.background='rgba(255,255,255,0.2)'"
+            id="newSessionBtn">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        <button class="tool-btn" onclick="toggleFullscreen()"><i class="fas fa-expand"></i></button>
+        <div class="control-group">
+            <button class="control-btn" onclick="zoomOut()"><i class="fas fa-minus"></i></button>
+            <span class="zoom-info" id="zoomInfo">100%</span>
+            <button class="control-btn" onclick="zoomIn()"><i class="fas fa-plus"></i></button>
+        </div>
+        <button class="tool-btn" onclick="closeApp()"><i class="fas fa-times"></i></button>
+    </div>
+</header>
+
+<div class="container">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><h3>Mục lục</h3></div>
+        <div class="sidebar-content" id="sidebarContent"></div>
+    </aside>
+
+    <div class="toolbar">
+        <button class="tool-btn active" id="tool-pointer" onclick="selectTool('pointer')" title="Con trỏ"><i class="fas fa-mouse-pointer"></i></button>
+        <button class="tool-btn" id="tool-pen"         onclick="selectTool('pen')"         title="Bút vẽ"><i class="fas fa-pen"></i></button>
+        <button class="tool-btn" id="tool-highlighter" onclick="selectTool('highlighter')" title="Highlight"><i class="fas fa-highlighter"></i></button>
+        <button class="tool-btn" id="tool-underline"   onclick="selectTool('underline')"   title="Gạch chân"><i class="fas fa-underline"></i></button>
+        <button class="tool-btn" id="tool-text"        onclick="selectTool('text')"         title="Thêm chữ"><i class="fas fa-font"></i></button>
+        <button class="tool-btn" id="tool-eraser"      onclick="selectTool('eraser')"       title="Tẩy"><i class="fas fa-eraser"></i></button>
+        <button class="tool-btn" id="tool-zone"        onclick="selectTool('zone')"         title="Tạo vùng bài tập"><i class="fas fa-vector-square"></i></button>
+        <button class="tool-btn" onclick="undo()"  title="Hoàn tác"><i class="fas fa-undo"></i></button>
+        <button class="tool-btn" onclick="redo()"  title="Làm lại"><i class="fas fa-redo"></i></button>
+        <button class="tool-btn" onclick="clearAnnotations()" title="Xóa tất cả"><i class="fas fa-trash"></i></button>
+    </div>
+
+    <div class="color-picker" id="colorPicker">
+            <div class="color-option selected" style="background:#ffff00" onclick="selectColor('#ffff00', this)"></div>
+            <div class="color-option" style="background:#00ff00" onclick="selectColor('#00ff00', this)"></div>
+            <div class="color-option" style="background:#ff6b6b" onclick="selectColor('#ff6b6b', this)"></div>
+            <div class="color-option" style="background:#4ecdc4" onclick="selectColor('#4ecdc4', this)"></div>
+            <div class="color-option" style="background:#ff9ff3" onclick="selectColor('#ff9ff3', this)"></div>
+            <div class="color-option" style="background:#000000" onclick="selectColor('#000000', this)"></div>
+        </div>
+
+        <div class="pen-size-selector" id="penSizeSelector">
+            <div class="size-option" onclick="selectPenSize(2, this)">
+                <div class="size-preview" style="height:2px"></div><span>Mỏng</span>
+            </div>
+            <div class="size-option selected" onclick="selectPenSize(5, this)">
+                <div class="size-preview" style="height:5px"></div><span>Vừa</span>
+            </div>
+            <div class="size-option" onclick="selectPenSize(10, this)">
+        </div>
+    </div>
+
+    <main class="viewer">
+        <div class="viewer-content" id="viewerContent">
+            <div class="page-container" id="pageContainer"></div>
+        </div>
+        <div class="controls-bar">
+            <div class="control-group">
+                <button class="control-btn" onclick="prevPage()" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+                <span class="page-info" id="pageInfo">1 / 1</span>
+                <button class="control-btn" onclick="nextPage()" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div class="text-input-popup" id="textInputPopup">
+    <div style="display:flex;gap:5px;align-items:center;">
+        <input type="number" id="textInputSize" value="40" style="width:50px;padding:4px;border:1px solid #ccc;border-radius:4px;" title="Kích cỡ chữ (px)">
+        <input type="text" id="textInput" placeholder="Nhập chữ... (Enter)" style="flex:1;padding:6px;">
+        <button id="textInputClose" style="background:#e53e3e;color:white;border:none;border-radius:4px;width:28px;height:28px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><span>&times;</span></button>
+    </div>
+</div>
+
+<div class="selection-box" id="selectionBox"></div>
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Exercise Modal -->
+<div id="exModal">
+    <div class="ex-toolbar">
+        <span class="ex-title" id="exTitle">Bài tập</span>
+        <div class="ex-sep"></div>
+        <button class="ex-tool active" id="xt-pen"    onclick="exSetTool('pen')"    title="Bút"><i class="fas fa-pen"></i></button>
+        <button class="ex-tool"        id="xt-hl"     onclick="exSetTool('hl')"     title="Highlight"><i class="fas fa-highlighter"></i></button>
+        <button class="ex-tool"        id="xt-text"   onclick="exSetTool('text')"   title="Thêm chữ"><i class="fas fa-font"></i></button>
+        <button class="ex-tool"        id="xt-eraser" onclick="exSetTool('eraser')" title="Tẩy"><i class="fas fa-eraser"></i></button>
+        <div class="ex-sep"></div>
+        <div class="ex-dot sel" style="background:#000000" data-c="#000000" onclick="exPickColor(this)"></div>
+        <div class="ex-dot"     style="background:#e53e3e" data-c="#e53e3e" onclick="exPickColor(this)"></div>
+        <div class="ex-dot"     style="background:#2563eb" data-c="#2563eb" onclick="exPickColor(this)"></div>
+        <div class="ex-dot"     style="background:#059669" data-c="#059669" onclick="exPickColor(this)"></div>
+        <div class="ex-dot"     style="background:#d97706" data-c="#d97706" onclick="exPickColor(this)"></div>
+        <select id="exSizeSelect" style="padding:4px 8px;border-radius:6px;border:1px solid #ddd;font-size:12px" onchange="exPenSize=+this.value">
+            <option value="2">Mỏng</option>
+            <option value="4" selected>Vừa</option>
+            <option value="8">Dày</option>
+        </select>
+        <div class="ex-sep"></div>
+        <button class="ex-tool" onclick="exUndo()"  title="Hoàn tác"><i class="fas fa-undo"></i></button>
+        <button class="ex-tool" onclick="exClear()" title="Xóa hết"><i class="fas fa-trash-alt"></i></button>
+        <div class="ex-sep"></div>
+        <button class="ex-btn ex-primary" onclick="exCheck()"><i class="fas fa-check"></i> Nộp bài</button>
+        <button class="ex-btn ex-close"   onclick="exClose()"><i class="fas fa-times"></i> Đóng</button>
+    </div>
+    <div class="ex-body" id="exBody">
+        <canvas id="exPageCanvas"></canvas>
+        <canvas id="exDrawCanvas"></canvas>
+        <div id="exSpinner">
+            <div class="ex-spin"></div>
+            <div class="ex-spin-lbl">Đang chấm bài...</div>
+        </div>
+        <div id="exResult">
+            <div class="ex-r-emoji" id="exEmoji">🌟</div>
+            <div class="ex-r-score" id="exScore">0%</div>
+            <div class="ex-r-stars" id="exStars">⭐⭐⭐</div>
+            <div class="ex-r-fb" id="exFb"></div>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center;">
+                <button class="ex-btn ex-primary" onclick="exTryAgain()"><i class="fas fa-redo"></i> Làm lại</button>
+                <button class="ex-btn" style="background:#28a745;color:white;border:none;" onclick="insertCurrentAnswer()">
+                    <i class="fas fa-file-image"></i> Chèn đáp án
+                </button>
+                <button class="ex-btn ex-close" onclick="exClose()"><i class="fas fa-times"></i> Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="exTextPop"><input id="exTextIn" type="text" placeholder="Nhập chữ... (Enter)"></div>
+<iframe id="spotifyEmbed"
+    src="https://open.spotify.com/embed/playlist/0G1cKhaTrY5UdETvbLxGnb?utm_source=generator&theme=0"
+    width="0" height="0"
+    frameborder="0"
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"
+    style="position:fixed;bottom:-100px;left:-100px;pointer-events:none;opacity:0;">
+</iframe>
+
+<!-- Spotify popup player -->
+<div id="spotifyPopup">
+    <iframe
+        src="https://open.spotify.com/embed/playlist/0G1cKhaTrY5UdETvbLxGnb?utm_source=generator&theme=0"
+        width="340" height="152"
+        frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy">
+    </iframe>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+// ============================================================
+// TREASURE HUNT SYSTEM
+// ============================================================
+const TH_CHARS = [
+    { emoji: '🦁', name: 'Sư Tử Dũng' },
+    { emoji: '🦋', name: 'Bướm Tiên' },
+    { emoji: '🐉', name: 'Rồng Vàng' },
+    { emoji: '🦊', name: 'Cáo Khôn' },
+];
+
+// 18 tuần — icon & tên cho từng chương hành trình
+const TH_CHAPTERS = [
+    { name: 'Tuần 1',  icon: '🗺️', weekIdx: 0 },
+    { name: 'Tuần 2',  icon: '🌊', weekIdx: 1 },
+    { name: 'Tuần 3',  icon: '🏔️', weekIdx: 2 },
+    { name: 'Tuần 4',  icon: '🌋', weekIdx: 3 },
+    { name: 'Tuần 5',  icon: '🏝️', weekIdx: 4 },
+    { name: 'Tuần 6',  icon: '🏰', weekIdx: 5 },
+    { name: 'Tuần 7',  icon: '🌴', weekIdx: 6 },
+    { name: 'Tuần 8',  icon: '⛵', weekIdx: 7 },
+    { name: 'Tuần 9',  icon: '🔭', weekIdx: 8 },
+    { name: 'Tuần 10', icon: '🌙', weekIdx: 9 },
+    { name: 'Tuần 11', icon: '🦅', weekIdx: 10 },
+    { name: 'Tuần 12', icon: '🌺', weekIdx: 11 },
+    { name: 'Tuần 13', icon: '🐬', weekIdx: 12 },
+    { name: 'Tuần 14', icon: '🦄', weekIdx: 13 },
+    { name: 'Tuần 15', icon: '🌈', weekIdx: 14 },
+    { name: 'Tuần 16', icon: '🎪', weekIdx: 15 },
+    { name: 'Tuần 17', icon: '🔮', weekIdx: 16 },
+    { name: 'Tuần 18', icon: '🏆', weekIdx: 17 },
+];
+
+// Mỗi bài tập = 1 chìa khóa, tích lũy vô hạn
+// Cứ đủ KEYS_PER_VOUCHER chìa → nhận 1 phiếu Fahasa
+const KEYS_PER_VOUCHER = 10; // chỉnh số này tùy ý
+
+let thState = {
+    charIdx: -1,
+    keys: 0,            // tổng chìa khóa tích lũy
+    vouchers: 0,        // tổng phiếu đã nhận
+    completedZones: [], // zoneId đã làm (tránh trao 2 lần)
+};
+let thIntroVoicePlayed = false;
+const TH_WELCOME_VOICE = 'Chào mừng bé đến với hành trình đại phiêu lưu Tiếng Việt, hiện tại đang có một kho báu bị mất tích mang tên "Voucher Fahasa". Hãy giúp mình tìm kho báu bằng cách làm thật nhiều bài tập, mỗi bài tặng 1 chìa khóa, bạn tích đủ 10 chìa khóa đổi được 1 tích điểm, chỉ cần 10 tích điểm bạn sẽ tìm được kho báu Voucher Fahasa. Nếu bạn giúp mình hãy chọn linh vật đại diện, để bắt đầu đại hải trình với mình nhé.';
+
+function speakText(text) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+
+    const speakNow = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const viVoice = voices.find(v => v.lang.startsWith('vi')) || voices.find(v => v.lang.startsWith('vn'));
+        if (viVoice) utterance.voice = viVoice;
+        window.speechSynthesis.speak(utterance);
+    };
+
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+        speakNow();
+    } else {
+        window.speechSynthesis.onvoiceschanged = () => {
+            if (!ttsSpeaking) {
+                speakNow();
+            }
+        };
+    }
+}
+
+function thLoadState() {
+    try {
+        const s = localStorage.getItem('tv5_th_state_v3');
+        if (s) thState = JSON.parse(s);
+    } catch(e) {}
+}
+
+function thSaveState() {
+    try { localStorage.setItem('tv5_th_state_v3', JSON.stringify(thState)); } catch(e) {}
+}
+
+thLoadState();
+
+function thSelectChar(card, idx) {
+    document.querySelectorAll('.th-char-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    thState.charIdx = idx;
+    const btn = document.getElementById('thStartBtn');
+    btn.disabled = false;
+    btn.textContent = thState.keys > 0
+        ? `${TH_CHARS[idx].emoji} Tiếp tục hành trình! (${thState.keys} 🗝️)`
+        : '🗺️ Bắt đầu hành trình tìm kho báu!';
+    document.getElementById('headerHeroBadge').textContent = TH_CHARS[idx].emoji;
+}
+
+function thStartAdventure() {
+    thSaveState();
+    // Nếu đã có tiến trình → về map, không về đầu
+    thShowMapScreen();
+}
+
+// Mở màn chọn nhân vật mà KHÔNG reset tiến trình
+function thShowCharSelect() {
+    document.getElementById('treasureOverlay').classList.remove('hidden');
+    document.getElementById('thCharScreen').style.display = 'block';
+    document.getElementById('thMapScreen').style.display = 'none';
+    document.getElementById('thTreasureScreen').style.display = 'none';
+
+    // Đánh dấu nhân vật đang chọn
+    document.querySelectorAll('.th-char-card').forEach((c, i) => {
+        c.classList.toggle('selected', i === thState.charIdx);
+    });
+
+    // Nếu đã có nhân vật → nút không bị disable
+    const btn = document.getElementById('thStartBtn');
+    btn.disabled = thState.charIdx < 0;
+    // Đổi label nút nếu đang chơi rồi
+    btn.textContent = thState.keys > 0 ? '✅ Xác nhận đổi nhân vật!' : '🗺️ Bắt đầu hành trình tìm kho báu!';
+    if (!thIntroVoicePlayed) {
+        speakText(TH_WELCOME_VOICE);
+        thIntroVoicePlayed = true;
+    }
+}
+
+function thShowMapScreen() {
+    document.getElementById('thCharScreen').style.display = 'none';
+    document.getElementById('thTreasureScreen').style.display = 'none';
+    document.getElementById('thMapScreen').style.display = 'block';
+    thRenderMap();
+}
+
+function thShowMap() {
+    document.getElementById('treasureOverlay').classList.remove('hidden');
+    if (thState.charIdx < 0) {
+        document.getElementById('thCharScreen').style.display = 'block';
+        document.getElementById('thMapScreen').style.display = 'none';
+        document.getElementById('thTreasureScreen').style.display = 'none';
+    } else {
+        thShowMapScreen();
+    }
+}
+
+function thEnterApp() {
+    document.getElementById('treasureOverlay').classList.add('hidden');
+    if (!thIntroVoicePlayed) {
+        speakText(TH_WELCOME_VOICE);
+        thIntroVoicePlayed = true;
+    }
+}
+
+function thRenderMap() {
+    const char = TH_CHARS[thState.charIdx] || TH_CHARS[0];
+    document.getElementById('thHeroBadge').textContent = char.emoji;
+    document.getElementById('thHeroName').textContent = char.name;
+    document.getElementById('headerHeroBadge').textContent = char.emoji;
+    document.getElementById('thKeyCount').textContent = thState.keys;
+    if (document.getElementById('thVoucherCount')) document.getElementById('thVoucherCount').textContent = thState.vouchers || 0;
+    if (document.getElementById('thVoucherThreshold')) document.getElementById('thVoucherThreshold').textContent = KEYS_PER_VOUCHER + ' chìa';
+    if (document.getElementById('thCycleLabel')) document.getElementById('thCycleLabel').textContent = KEYS_PER_VOUCHER;
+
+    // Tiến trình đến voucher tiếp theo
+    const keysThisVoucher = thState.keys % KEYS_PER_VOUCHER;
+    const pct = Math.round((keysThisVoucher / KEYS_PER_VOUCHER) * 100);
+    document.getElementById('thProgressFill').style.width = pct + '%';
+    document.getElementById('thProgressText').textContent = `${keysThisVoucher}/${KEYS_PER_VOUCHER} → phiếu ${(thState.vouchers || 0) + 1}`;
+    document.getElementById('headerKeyBadge').textContent = `🗝️ ${thState.keys} | 🎫 ${thState.vouchers || 0}`;
+
+    thRenderKeys();
+    thRenderChapters();
+}
+
+function thRenderKeys() {
+    const row = document.getElementById('thKeysRow');
+    row.innerHTML = '';
+    // Hiện chìa khóa trong chu kỳ hiện tại (tiến đến voucher kế)
+    const keysThisVoucher = thState.keys % KEYS_PER_VOUCHER || (thState.keys > 0 && thState.keys % KEYS_PER_VOUCHER === 0 ? KEYS_PER_VOUCHER : 0);
+    for (let i = 0; i < KEYS_PER_VOUCHER; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'th-key-slot' + (i < keysThisVoucher ? ' filled' : '');
+        slot.textContent = i < keysThisVoucher ? '🗝️' : '';
+        row.appendChild(slot);
+    }
+}
+
+function thRenderChapters() {
+    // Hiển thị 18 tuần — mỗi tuần hiện số bài đã làm trong tuần đó
+    const grid = document.getElementById('thChaptersGrid');
+    grid.innerHTML = '';
+    TH_CHAPTERS.forEach((ch, idx) => {
+        // Đếm số zone đã làm trong tuần này
+        const startPage = weekStartPages[idx] || 1;
+        const endPage   = weekStartPages[idx + 1] || 9999;
+        let doneCount = 0;
+        (thState.completedZones || []).forEach(zid => {
+            // zid format: "pageNum_zoneId"
+            const pg = parseInt(zid.split('_')[0]);
+            if (pg >= startPage && pg < endPage) doneCount++;
+        });
+
+        const card = document.createElement('div');
+        const hasDone = doneCount > 0;
+        card.className = 'th-chapter-card' + (hasDone ? ' unlocked' : '');
+
+        card.innerHTML = `
+            <div class="th-chapter-icon">${ch.icon}</div>
+            <div class="th-chapter-num">${ch.name}</div>
+            <div class="th-chapter-name">${hasDone ? `✅ ${doneCount} bài` : 'Chưa làm'}</div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// Gọi sau khi bé nộp bài đạt điểm — trao 1 chìa khóa cho bài tập này
+function thAwardKeyForCurrentPage() {
+    if (!exCurZone) {
+        showToast('Không xác định được bài hiện tại để trao chìa khóa.', 'error');
+        return;
+    }
+    const zoneKey = `${exCurZone.pn}_${exCurZone.zone.id || 0}`;
+
+    if (!thState.completedZones) thState.completedZones = [];
+
+    // Không trao 2 lần cho cùng 1 bài
+    if (thState.completedZones.includes(zoneKey)) {
+        document.getElementById('thPopupEmoji').textContent = 'ℹ️';
+        document.getElementById('thPopupTitle').textContent = 'Đã nhận chìa khóa rồi!';
+        document.getElementById('thPopupSub').textContent = 'Bài này đã được trao chìa khóa trước đó. Hãy tiếp tục làm bài khác để kiếm thêm nhé!';
+        const btn = document.getElementById('thPopupBtn');
+        btn.textContent = 'Tiếp tục';
+        btn.onclick = thCloseKeyPopup;
+        document.getElementById('thKeyPopup').classList.add('open');
+        return;
+    }
+
+    thState.completedZones.push(zoneKey);
+    thState.keys++;
+
+    // Kiểm tra có đủ để nhận voucher không
+    const earnedVoucher = thState.keys % KEYS_PER_VOUCHER === 0;
+    if (earnedVoucher) thState.vouchers++;
+
+    thSaveState();
+
+    // Cập nhật header
+    document.getElementById('headerKeyBadge').textContent = `🗝️ ${thState.keys} | 🎫 ${thState.vouchers}`;
+
+    // Nội dung popup
+    const btn = document.getElementById('thPopupBtn');
+    if (earnedVoucher) {
+        document.getElementById('thPopupEmoji').textContent = '🎫';
+        document.getElementById('thPopupTitle').textContent = `Nhận Voucher Fahasa số ${thState.vouchers}!`;
+        document.getElementById('thPopupSub').textContent = `Xuất sắc! Em đã hoàn thành 10 tiết và nhận được voucher Fahasa!\nĐây là phiếu mua đồ chơi bất kỳ tại Fahasa! Bố/mẹ in phiếu cho em nhé! 🎁`;
+        btn.textContent = '🎁 Xem voucher!';
+        btn.onclick = thOpenTreasure;
+        thSpawnConfetti();
+    } else {
+        const remaining = KEYS_PER_VOUCHER - (thState.keys % KEYS_PER_VOUCHER);
+        document.getElementById('thPopupEmoji').textContent = '🗝️';
+        document.getElementById('thPopupTitle').textContent = 'Thu được chìa khóa!';
+        document.getElementById('thPopupSub').textContent = `Giỏi lắm! Em đã hoàn thành ${thState.keys} tiết ✨\nCòn ${remaining} tiết nữa là nhận được voucher Fahasa!`;
+        btn.textContent = 'Tuyệt vời! →';
+        btn.onclick = thCloseKeyPopup;
+    }
+
+    document.getElementById('thKeyPopup').classList.add('open');
+}
+
+function thCloseKeyPopup() {
+    document.getElementById('thKeyPopup').classList.remove('open');
+}
+
+function thOpenTreasure() {
+    thCloseKeyPopup();
+    document.getElementById('treasureOverlay').classList.remove('hidden');
+    document.getElementById('thCharScreen').style.display = 'none';
+    document.getElementById('thMapScreen').style.display = 'none';
+    document.getElementById('thTreasureScreen').style.display = 'block';
+    const char = TH_CHARS[thState.charIdx] || TH_CHARS[0];
+    document.getElementById('thTicketName').textContent = `Dành tặng: ${char.name}`;
+    if (document.getElementById('thVoucherNum')) document.getElementById('thVoucherNum').textContent = thState.vouchers || 1;
+    thSpawnConfetti();
+}
+
+function thResetGame() {
+    if (!confirm('Xóa toàn bộ tiến trình kho báu và bắt đầu lại?')) return;
+    thState = { charIdx: -1, keys: 0, vouchers: 0, completedZones: [] };
+    thSaveState();
+    document.getElementById('thCharScreen').style.display = 'block';
+    document.getElementById('thMapScreen').style.display = 'none';
+    document.getElementById('thTreasureScreen').style.display = 'none';
+    document.querySelectorAll('.th-char-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('thStartBtn').disabled = true;
+    document.getElementById('headerKeyBadge').textContent = `🗝️ 0 | 🎫 0`;
+    document.getElementById('headerHeroBadge').textContent = '🦁';
+}
+
+function thSpawnConfetti() {
+    const container = document.getElementById('thConfettiContainer');
+    const colors = ['#f5c842','#c97b10','#e8a030','#ff6b6b','#6bd4a0','#7ab8f5','#ff9ff3'];
+    for (let i = 0; i < 80; i++) {
+        setTimeout(() => {
+            const p = document.createElement('div');
+            p.className = 'th-confetti-piece';
+            p.style.left = (Math.random() * 100) + 'vw';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.width  = (Math.random() * 10 + 6) + 'px';
+            p.style.height = (Math.random() * 10 + 6) + 'px';
+            p.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+            p.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+            p.style.animationDelay = (Math.random() * 0.6) + 's';
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 4000);
+        }, i * 25);
+    }
+}
+
+// ============================================================
+// GUIDE MODAL FUNCTIONS
+// ============================================================
+function openGuide() {
+    const modal = document.getElementById('guideModal');
+    if (modal) {
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeGuide() {
+    const modal = document.getElementById('guideModal');
+    if (modal) {
+        modal.classList.remove('open');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Close guide when clicking outside the content
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('guideModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeGuide();
+            }
+        });
+    }
+});
+
+// Init overlay on load
+window.addEventListener('DOMContentLoaded', () => {
+    const char = TH_CHARS[thState.charIdx] || TH_CHARS[0];
+    document.getElementById('headerHeroBadge').textContent = char.emoji;
+    document.getElementById('headerKeyBadge').textContent = `🗝️ ${thState.keys || 0} | 🎫 ${thState.vouchers || 0}`;
+
+    if (thState.charIdx >= 0) {
+        // Đã từng chọn nhân vật → hỏi tiếp tục hay đổi
+        const c = TH_CHARS[thState.charIdx];
+        document.getElementById('thContinueAvatar').textContent = c.emoji;
+        document.getElementById('thContinueTitle').textContent  = `Chào ${c.name}!`;
+        document.getElementById('thContinueSub').textContent    =
+            `Em có ${thState.keys} 🗝️ và ${thState.vouchers} 🎫\nTiếp tục phiêu lưu với ${c.name} hay đổi nhân vật khác?`;
+        document.getElementById('thBtnContinue').textContent    = `▶ Tiếp tục với ${c.emoji} ${c.name}!`;
+        document.getElementById('thContinuePopup').classList.add('open');
+
+        // Ẩn overlay chính trong khi popup hỏi
+        document.getElementById('treasureOverlay').classList.add('hidden');
+    } else {
+        // Lần đầu → hiện màn chọn nhân vật bình thường
+        document.getElementById('thCharScreen').style.display = 'block';
+        document.getElementById('thMapScreen').style.display = 'none';
+        document.getElementById('thTreasureScreen').style.display = 'none';
+        if (!thIntroVoicePlayed) {
+            speakText(TH_WELCOME_VOICE);
+            thIntroVoicePlayed = true;
+        }
+    }
+});
+
+function thConfirmContinue() {
+    // Bé chọn tiếp tục → vào thẳng app, không cần qua overlay
+    document.getElementById('thContinuePopup').classList.remove('open');
+    document.getElementById('treasureOverlay').classList.add('hidden');
+}
+
+function thConfirmChange() {
+    // Bé muốn đổi → mở màn chọn nhân vật, highlight con cũ
+    document.getElementById('thContinuePopup').classList.remove('open');
+    document.getElementById('treasureOverlay').classList.remove('hidden');
+    document.getElementById('thCharScreen').style.display = 'block';
+    document.getElementById('thMapScreen').style.display = 'none';
+    document.getElementById('thTreasureScreen').style.display = 'none';
+
+    // Highlight nhân vật hiện tại
+    document.querySelectorAll('.th-char-card').forEach((c, i) => {
+        c.classList.toggle('selected', i === thState.charIdx);
+    });
+    const btn = document.getElementById('thStartBtn');
+    btn.disabled = false;
+    btn.textContent = '✅ Xác nhận nhân vật!';
+}
+
+// ============================================================
+// APP CHÍNH — giữ nguyên toàn bộ
+// ============================================================
+const weekStartPages = [5,9,12,16,20,24,27,30,34,38,42,45,49,53,57,60,64,68];
+
+function getWeekZoneCount(pageNum) {
+    let weekStart = 1;
+    for (const p of weekStartPages) {
+        if (pageNum >= p) weekStart = p;
+        else break;
+    }
+    const nextWeekStart = weekStartPages[weekStartPages.indexOf(weekStart) + 1] || 9999;
+    let count = 0;
+    for (let p = weekStart; p < nextWeekStart; p++) {
+        count += (zoneState.zones[p] || []).length;
+    }
+    return count;
+}
+
+const exerciseAnswers = {
+    "5_1": "Đáp án tập 5.1/b2-t1.png",
+    "6_1": "Đáp án tập 5.1/b3-t1.png",
+    "6_2": "Đáp án tập 5.1/b4-t1.png",
+    "6_3": "Đáp án tập 5.1/b5-t1.png",
+    "6_4": "Đáp án tập 5.1/b6-t1.png",
+    "7_1": "Đáp án tập 5.1/b7-t1.png",
+    "7_2": "Đáp án tập 5.1/b8-t1.png",
+    "8_1": "Đáp án tập 5.1/b9-t1.png",
+    "8_2": "Đáp án tập 5.1/b10-t1.png",
+    "8_3": "Đáp án tập 5.1/b11-t1.png",
+    "9_1": "Đáp án tập 5.1/b2-t2.png",
+    "9_2": "Đáp án tập 5.1/b3-t2.png",
+    "10_1": "Đáp án tập 5.1/b4-t2.png",
+    "10_2": "Đáp án tập 5.1/b5-t2.png",
+    "10_3": "Đáp án tập 5.1/b6-t2.png",
+    "10_4": "Đáp án tập 5.1/b7-t2.png",
+    "11_1": "Đáp án tập 5.1/b8-t2.png",
+    "11_2": "Đáp án tập 5.1/b9-t2.png",
+    "12_1": "Đáp án tập 5.1/b2-t3.png",
+    "12_2": "Đáp án tập 5.1/b3-t3.png",
+    "12_3": "Đáp án tập 5.1/b4-t3.png",
+    "13_1": "Đáp án tập 5.1/b5-t3.png",
+    "13_2": "Đáp án tập 5.1/b6-t3.png",
+    "14_1": "Đáp án tập 5.1/b7-t3.png",
+    "14_2": "Đáp án tập 5.1/b8-t3.png",
+    "15_1": "Đáp án tập 5.1/b9-t3.png",
+    "15_2": "Đáp án tập 5.1/b10-t3.png",
+    "17_1": "Đáp án tập 5.1/b2-t4.png",
+    "17_2": "Đáp án tập 5.1/b3-t4.png",
+    "17_3": "Đáp án tập 5.1/b4-t4.png",
+    "17_4": "Đáp án tập 5.1/b5-t4.png",
+    "17_5": "Đáp án tập 5.1/b6-t4.png",
+    "18_1": "Đáp án tập 5.1/b7-t4.png",
+    "18_2": "Đáp án tập 5.1/b8-t4.png",
+    "18_3": "Đáp án tập 5.1/b9-t4.png",
+    "19_1": "Đáp án tập 5.1/b10-t4.png",
+    "20_1": "Đáp án tập 5.1/b2-t5.png",
+    "20_2": "Đáp án tập 5.1/b3-t5.png",
+    "21_1": "Đáp án tập 5.1/b4-t5.png",
+    "21_2": "Đáp án tập 5.1/b5-t5.png",
+    "21_3": "Đáp án tập 5.1/b6-t5.png",
+    "21_4": "Đáp án tập 5.1/b7-t5.png",
+    "22_1":  "Đáp án tập 5.1/b8-t5.png",
+    "22_2": "Đáp án tập 5.1/b9-t5.png",
+    "22_3": "Đáp án tập 5.1/b10-t5.png",
+    "23_1": "Đáp án tập 5.1/b11-t5.png",
+    "23_2": "Đáp án tập 5.1/b12-t5.png",
+    "23_3": "Đáp án tập 5.1/b13-t5.png",
+    "23_4": "Đáp án tập 5.1/b14-t5.png",
+    "23_5": "Đáp án tập 5.1/b15-t5.png",
+    "24-1": "Đáp án tập 5.1/b2-t6.png",
+    "24-2": "Đáp án tập 5.1/b3-t6.png",
+    "24-3": "Đáp án tập 5.1/b4-t6.png",
+    "25_1": "Đáp án tập 5.1/b5-t6.png",
+    "25_2": "Đáp án tập 5.1/b6-t6.png",
+    "25_3": "Đáp án tập 5.1/b7-t6.png",
+    "25_4": "Đáp án tập 5.1/b8-t6.png",
+    "26_1": "Đáp án tập 5.1/b9-t6.png",
+    "26_2": "Đáp án tập 5.1/b10-t6.png",
+    "27_1": "Đáp án tập 5.1/b2-t7.png",
+    "27_2": "Đáp án tập 5.1/b3-t7.png",
+    "27_3": "Đáp án tập 5.1/b4-t7.png",
+    "27_4": "Đáp án tập 5.1/b5-t7.png",
+    "28_1": "Đáp án tập 5.1/b6-t7.png",
+    "28_2": "Đáp án tập 5.1/b7-t7.png",
+    "28_3": "Đáp án tập 5.1/b8-t7.png",
+    "29_1": "Đáp án tập 5.1/b9-t7.png",
+    "29_2": "Đáp án tập 5.1/b10-t7.png",
+    "30_1": "Đáp án tập 5.1/b2-t8.png",
+    "31_1": "Đáp án tập 5.1/b3-t8.png",
+    "31_2": "Đáp án tập 5.1/b4-t8.png",
+    "31_3": "Đáp án tập 5.1/b5-t8.png",
+    "31_4": "Đáp án tập 5.1/b6-t8.png",
+    "31_1": "Đáp án tập 5.1/b7-t8.png",
+    "32_1": "Đáp án tập 5.1/b8-t8.png",
+    "32_2": "Đáp án tập 5.1/b9-t8.png",
+    "32_3": "Đáp án tập 5.1/b10-t8.png",
+    "33_1": "Đáp án tập 5.1/b11-t8.png",
+    "34_1": "Đáp án tập 5.1/b2-t9.png",
+    "34_2": "Đáp án tập 5.1/b3-t9.png",
+    "35_1": "Đáp án tập 5.1/b4-t9.png",
+    "35_2": "Đáp án tập 5.1/b5-t9.png",
+    "35_3": "Đáp án tập 5.1/b6-t9.png",
+    "35_4": "Đáp án tập 5.1/b7-t9.png",
+    "35_5": "Đáp án tập 5.1/b8-t9.png",
+    "35_6": "Đáp án tập 5.1/b9-t9.png",
+    "36_1": "Đáp án tập 5.1/b10-t9.png",
+    "36_2": "Đáp án tập 5.1/b11-t9.png",
+    "36_3": "Đáp án tập 5.1/b12-t9.png",
+    "36_4": "Đáp án tập 5.1/b13-t9.png",
+    "36_5": "Đáp án tập 5.1/b14-t9.png",
+    "37_1": "Đáp án tập 5.1/b15-t9.png",
+    "39_1": "Đáp án tập 5.1/b2-t10.png",
+    "39_2": "Đáp án tập 5.1/b3-t10.png",
+    "39_3": "Đáp án tập 5.1/b4-t10.png",
+    "39_4": "Đáp án tập 5.1/b5-t10.png",
+    "39_5": "Đáp án tập 5.1/b6-t10.png",
+    "39_6": "Đáp án tập 5.1/b7-t10.png",
+    "40_1": "Đáp án tập 5.1/b8-t10.png",
+    "40_2": "Đáp án tập 5.1/b9-t10.png",
+    "41_2": "Đáp án tập 5.1/b10-t10.png",
+    "42_1": "Đáp án tập 5.1/b2-t11.png",
+    "43_1": "Đáp án tập 5.1/b3-t11.png",
+    "43_2": "Đáp án tập 5.1/b4-t11.png",
+    "43_3": "Đáp án tập 5.1/b5-t11.png",
+    "43_4": "Đáp án tập 5.1/b6-t11.png",
+    "43_5": "Đáp án tập 5.1/b7-t11.png",
+    "43_6": "Đáp án tập 5.1/b8-t11.png",
+    "44_1": "Đáp án tập 5.1/b9-t11.png",
+    "44_2": "Đáp án tập 5.1/b10-t11.png",
+    "46_1": "Đáp án tập 5.1/b2-t12.png",
+    "46_2": "Đáp án tập 5.1/b3-t12.png",
+    "46_3": "Đáp án tập 5.1/b4-t12.png",
+    "46_4": "Đáp án tập 5.1/b5-t12.png",
+    "46_5": "Đáp án tập 5.1/b6-t12.png",
+    "46_6": "Đáp án tập 5.1/b7-t12.png",
+    "47_1": "Đáp án tập 5.1/b8-t12.png",
+    "47_2": "Đáp án tập 5.1/b9-t12.png",
+    "48_1": "Đáp án tập 5.1/b10-t12.png",
+};
+
+const app = {
+    pdfDoc: null, currentPage: 1, totalPages: 0,
+    zoom: 1, selectedTool: 'pointer',
+    selectedColor: '#ffff00', penSize: 5,
+    isDrawing: false, annotations: {},
+    undoStack: [], redoStack: [],
+};
+
+const tableOfContents = [
+    { title: 'Tuần 1', page: 5 },   { title: 'Tuần 2', page: 9 },
+    { title: 'Tuần 3', page: 12 },  { title: 'Tuần 4', page: 16 },
+    { title: 'Tuần 5', page: 20 },  { title: 'Tuần 6', page: 24 },
+    { title: 'Tuần 7', page: 27 },  { title: 'Tuần 8', page: 30 },
+    { title: 'Tuần 9. Ôn tập', page: 34 }, { title: 'Tuần 10', page: 38 },
+    { title: 'Tuần 11', page: 42 }, { title: 'Tuần 12', page: 45 },
+    { title: 'Tuần 13', page: 49 }, { title: 'Tuần 14', page: 53 },
+    { title: 'Tuần 15', page: 57 }, { title: 'Tuần 16', page: 60 },
+    { title: 'Tuần 17', page: 64 }, { title: 'Tuần 18. Ôn tập', page: 68 },
+];
+
+const zoneState = {
+    zones: {},
+    isDragging: false,
+    startX: 0, startY: 0,
+    currentPageNum: null,
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        showLoading(true);
+
+        // ===== RESET MỖI BUỔI HỌC MỚI =====
+        // sessionStorage bị xóa khi đóng tab/cửa sổ → mỗi lần mở lại là "buổi mới"
+        if (!sessionStorage.getItem('tv5_session_started')) {
+            sessionStorage.setItem('tv5_session_started', '1');
+            clearSessionData(); // xóa bài làm cũ, giữ zones & kho báu
+        }
+        // =====================================
+
+        loadAllZones();
+        await loadPDF();
+        initializeSidebar();
+        setupEventListeners();
+        setupKeyboardShortcuts();
+        initExCanvas();
+        await fitToPage();
+        showToast('✨ Buổi học mới bắt đầu! Chúc bé học vui!', 'success');
+    } catch (err) {
+        console.error(err);
+        showToast('Không thể tải tài liệu (kiểm tra file PDF).', 'error');
+    } finally {
+        showLoading(false);
+    }
+});
+
+// Xóa toàn bộ bài làm & annotations của buổi cũ
+// Giữ lại: pdf_zones_v2 (vùng bài tập) — kho báu & nhân vật cũng reset mỗi buổi
+function clearSessionData() {
+    const keysToKeep = ['pdf_zones_v2'];
+    const toDelete = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && !keysToKeep.includes(key) &&
+            (key.startsWith('ann_page_') || key.startsWith('ex_z') || key === 'tv5_th_state_v3')) {
+            toDelete.push(key);
+        }
+    }
+    toDelete.forEach(k => localStorage.removeItem(k));
+
+    // Reset app state
+    app.annotations = {};
+    app.undoStack = [];
+    app.redoStack = [];
+
+    // Reset kho báu & nhân vật
+    thState = { charIdx: -1, keys: 0, vouchers: 0, completedZones: [] };
+
+    console.log(`[Session Reset] Đã xóa ${toDelete.length} bản ghi.`);
+}
+
+// Reset thủ công — giáo viên bấm giữa buổi học
+function manualResetSession() {
+    if (!confirm('🔄 Bắt đầu buổi học mới?\n\nThao tác này sẽ xóa toàn bộ bài làm, chú thích, nhân vật và kho báu.\n✅ Các vùng bài tập vẫn được giữ nguyên.')) return;
+
+    clearSessionData();
+
+    // Xóa canvas đang hiển thị
+    document.querySelectorAll('.annotation-canvas').forEach(c => {
+        c.getContext('2d').clearRect(0, 0, c.width, c.height);
+    });
+
+    // Reset header badges
+    document.getElementById('headerHeroBadge').textContent = '🦁';
+    document.getElementById('headerKeyBadge').textContent = `🗝️ 0 | 🎫 0`;
+
+    // Mở lại màn chọn nhân vật
+    document.querySelectorAll('.th-char-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('thStartBtn').disabled = true;
+    document.getElementById('thStartBtn').textContent = '🗺️ Bắt đầu hành trình tìm kho báu!';
+    document.getElementById('treasureOverlay').classList.remove('hidden');
+    document.getElementById('thCharScreen').style.display = 'block';
+    document.getElementById('thMapScreen').style.display = 'none';
+    document.getElementById('thTreasureScreen').style.display = 'none';
+
+    sessionStorage.removeItem('tv5_session_started');
+    sessionStorage.setItem('tv5_session_started', '1');
+
+    // Spin animation
+    const btn = document.getElementById('newSessionBtn');
+    const icon = btn.querySelector('i');
+    icon.style.animation = 'spin 0.6s linear';
+    setTimeout(() => { icon.style.animation = ''; }, 700);
+}
+
+async function loadPDF() {
+    const pdfUrl = './Tập 1.pdf';
+    try {
+        app.pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+    } catch (e) {
+        console.warn("Không tìm thấy file PDF local.");
+        throw e;
+    }
+    app.totalPages = app.pdfDoc.numPages;
+    await renderPages();
+}
+
+async function renderPages() {
+    const container = document.getElementById('pageContainer');
+    container.innerHTML = '';
+    const pagesToRender = [app.currentPage];
+    if (app.currentPage + 1 <= app.totalPages) pagesToRender.push(app.currentPage + 1);
+
+    for (const pageNum of pagesToRender) {
+        const pageWrapper = document.createElement('div');
+        pageWrapper.className = 'page-wrapper';
+        pageWrapper.id = `page-${pageNum}`;
+
+        if (pageNum === 1) {
+            const coverVideo = document.createElement('video');
+            coverVideo.src = './Tập 1.mp4';
+            coverVideo.poster = 'Tieng viet 5 tap 1 bìa.jpg';
+            coverVideo.muted = true;
+            coverVideo.autoplay = true;
+            coverVideo.loop = true;
+            coverVideo.playsInline = true;
+            coverVideo.style.position = 'absolute';
+            coverVideo.style.top = '0';
+            coverVideo.style.left = '0';
+            coverVideo.style.width = '100%';
+            coverVideo.style.height = '100%';
+            coverVideo.style.objectFit = 'cover';
+            coverVideo.style.pointerEvents = 'none';
+            pageWrapper.appendChild(coverVideo);
+        }
+
+        const pdfCanvas = document.createElement('canvas');
+        pdfCanvas.className = 'page-canvas';
+        pdfCanvas.id = `pdf-canvas-${pageNum}`;
+
+        const annotationCanvas = document.createElement('canvas');
+        annotationCanvas.className = 'annotation-canvas';
+        annotationCanvas.id = `annotation-canvas-${pageNum}`;
+
+        pageWrapper.appendChild(pdfCanvas);
+        pageWrapper.appendChild(annotationCanvas);
+        container.appendChild(pageWrapper);
+
+        await renderPDFPage(pageNum, pdfCanvas);
+        setupAnnotationCanvas(annotationCanvas, pageNum);
+        loadAnnotations(pageNum);
+        renderZones(pageNum);
+        if (pageNum > 4) addTTSButton(pageWrapper, pageNum);
+    }
+    updatePageInfo();
+    updateNavigationButtons();
+}
+
+async function renderPDFPage(pageNum, canvas) {
+    const page = await app.pdfDoc.getPage(pageNum);
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const viewport = page.getViewport({ scale: app.zoom * dpr });
+    const ctx = canvas.getContext('2d');
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    canvas.style.width  = (viewport.width  / dpr) + 'px';
+    canvas.style.height = (viewport.height / dpr) + 'px';
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    const annotationCanvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    annotationCanvas.width  = viewport.width; annotationCanvas.height = viewport.height;
+    annotationCanvas.style.width  = (viewport.width  / dpr) + 'px';
+    annotationCanvas.style.height = (viewport.height / dpr) + 'px';
+}
+
+function setupAnnotationCanvas(canvas, pageNum) {
+    canvas.addEventListener('mousedown', (e) => {
+        if (app.selectedTool === 'zone') { e.stopPropagation(); startZoneDraw(e, pageNum); }
+        else startDrawing(e, pageNum);
+    });
+    canvas.addEventListener('mousemove', (e) => draw(e, pageNum));
+    canvas.addEventListener('mouseup',   () => stopDrawing(pageNum));
+    canvas.addEventListener('mouseout',  () => stopDrawing(pageNum));
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); const t=e.touches[0]; canvas.dispatchEvent(new MouseEvent('mousedown',{clientX:t.clientX,clientY:t.clientY})); }, {passive:false});
+    canvas.addEventListener('touchmove',  (e) => { e.preventDefault(); const t=e.touches[0]; canvas.dispatchEvent(new MouseEvent('mousemove',{clientX:t.clientX,clientY:t.clientY})); }, {passive:false});
+    canvas.addEventListener('touchend',   (e) => { e.preventDefault(); canvas.dispatchEvent(new MouseEvent('mouseup')); }, {passive:false});
+}
+
+function startDrawing(e, pageNum) {
+    if (app.selectedTool === 'pointer') return;
+    if (app.selectedTool === 'text') { e.stopPropagation(); showTextInputPopup(e.clientX, e.clientY, pageNum); return; }
+    app.isDrawing = true;
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * dpr;
+    const y = (e.clientY - rect.top)  * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.beginPath(); ctx.moveTo(x, y);
+    saveState(pageNum);
+}
+
+function draw(e, pageNum) {
+    if (!app.isDrawing || app.selectedTool === 'pointer') return;
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * dpr;
+    const y = (e.clientY - rect.top)  * dpr;
+    ctx.setLineDash([]); ctx.lineWidth = app.selectedTool === 'eraser' ? app.penSize * 2 : app.penSize;
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (app.selectedTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+    } else {
+        ctx.globalCompositeOperation = 'source-over';
+        switch (app.selectedTool) {
+            case 'pen':         ctx.strokeStyle = '#000000'; break;
+            case 'highlighter': ctx.strokeStyle = app.selectedColor + '60'; ctx.lineWidth = app.penSize * 3; break;
+            case 'underline':   ctx.strokeStyle = '#ff0000'; ctx.setLineDash([5, 3]); break;
+            default:            ctx.strokeStyle = app.selectedColor;
+        }
+    }
+    ctx.lineTo(x, y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y);
+}
+
+function stopDrawing(pageNum) {
+    if (app.isDrawing) { app.isDrawing = false; saveAnnotations(pageNum); }
+}
+
+function showTextInputPopup(x, y, pageNum) {
+    const popup = document.getElementById('textInputPopup');
+    const input = document.getElementById('textInput');
+    const sizeInput = document.getElementById('textInputSize');
+    popup.style.left = x + 'px'; popup.style.top = y + 'px';
+    popup.style.display = 'block';
+    popup.dataset.pageNum = pageNum;
+    input.value = '';
+    sizeInput.value = app.penSize * 6;
+    input.focus();
+    input.onkeydown = (e) => {
+        if (e.key === 'Enter') addText(pageNum);
+        if (e.key === 'Escape') popup.style.display = 'none';
+    };
+    const closeBtn = document.getElementById('textInputClose');
+    if (closeBtn) closeBtn.onclick = () => { popup.style.display = 'none'; };
+}
+
+function addText(pageNum) {
+    const popup  = document.getElementById('textInputPopup');
+    const input  = document.getElementById('textInput');
+    const sizeInput = document.getElementById('textInputSize');
+    const text   = input.value.trim();
+    const fontSize = parseInt(sizeInput.value) || 40;
+    if (text) {
+        const canvas     = document.getElementById(`annotation-canvas-${pageNum}`);
+        const ctx        = canvas.getContext('2d');
+        const dpr        = Math.min(window.devicePixelRatio || 1, 2);
+        const rect       = popup.getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
+        const x = (rect.left - canvasRect.left) * dpr;
+        const y = (rect.top  - canvasRect.top  + 20) * dpr;
+        ctx.font      = `bold ${fontSize * dpr}px Arial`;
+        ctx.fillStyle = app.selectedColor;
+        ctx.fillText(text, x, y);
+        saveAnnotations(pageNum);
+    }
+    popup.style.display = 'none';
+}
+
+function saveAnnotations(pageNum) {
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    if (!canvas) return;
+    const dataURL = canvas.toDataURL();
+    app.annotations[pageNum] = dataURL;
+    localStorage.setItem(`ann_page_${pageNum}`, dataURL);
+}
+
+function loadAnnotations(pageNum) {
+    const saved = localStorage.getItem(`ann_page_${pageNum}`);
+    if (saved) {
+        const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = saved;
+        app.annotations[pageNum] = saved;
+    }
+}
+
+function clearAnnotations() {
+    if (!confirm('Xóa tất cả chú thích?')) return;
+    document.querySelectorAll('.annotation-canvas').forEach(c => {
+        c.getContext('2d').clearRect(0, 0, c.width, c.height);
+    });
+    Object.keys(app.annotations).forEach(p => localStorage.removeItem(`ann_page_${p}`));
+    app.annotations = {};
+    showToast('Đã xóa tất cả chú thích', 'info');
+}
+
+function saveState(pageNum) {
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    app.undoStack.push({ pageNum, dataURL: canvas.toDataURL() });
+    app.redoStack = [];
+    if (app.undoStack.length > 50) app.undoStack.shift();
+}
+
+function undo() {
+    if (!app.undoStack.length) { showToast('Không có gì để hoàn tác', 'info'); return; }
+    const state = app.undoStack.pop();
+    const canvas = document.getElementById(`annotation-canvas-${state.pageNum}`);
+    app.redoStack.push({ pageNum: state.pageNum, dataURL: canvas.toDataURL() });
+    restoreState(state); showToast('Đã hoàn tác', 'success');
+}
+
+function redo() {
+    if (!app.redoStack.length) { showToast('Không có gì để làm lại', 'info'); return; }
+    const state = app.redoStack.pop();
+    const canvas = document.getElementById(`annotation-canvas-${state.pageNum}`);
+    app.undoStack.push({ pageNum: state.pageNum, dataURL: canvas.toDataURL() });
+    restoreState(state); showToast('Đã làm lại', 'success');
+}
+
+function restoreState(state) {
+    const canvas = document.getElementById(`annotation-canvas-${state.pageNum}`);
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0); saveAnnotations(state.pageNum); };
+    img.src = state.dataURL;
+}
+
+function selectTool(tool) {
+    const toolBtn = document.getElementById(`tool-${tool}`);
+    if (!toolBtn) return;
+    if (app.selectedTool === tool) {
+        app.selectedTool = 'pointer';
+        toolBtn.classList.remove('active');
+        document.getElementById('tool-pointer').classList.add('active');
+        document.getElementById('colorPicker').classList.remove('active');
+        document.getElementById('penSizeSelector').classList.remove('active');
+        document.querySelectorAll('.page-wrapper').forEach(w => w.classList.remove('active-tool'));
+    } else {
+        app.selectedTool = tool;
+        document.querySelectorAll('.toolbar .tool-btn').forEach(b => b.classList.remove('active'));
+        toolBtn.classList.add('active');
+        document.getElementById('colorPicker').classList.toggle('active', ['highlighter', 'text'].includes(tool));
+        document.getElementById('penSizeSelector').classList.toggle('active', ['pen', 'highlighter', 'underline'].includes(tool));
+        const isCrosshair = tool !== 'pointer';
+        document.querySelectorAll('.page-wrapper').forEach(w => w.classList.toggle('active-tool', isCrosshair));
+    }
+    showToast(`Công cụ: ${getToolName(app.selectedTool)}`, 'info');
+}
+
+function getToolName(t) {
+    return { pointer: 'Con trỏ', pen: 'Bút vẽ', highlighter: 'Highlight',
+             underline: 'Gạch chân', text: 'Thêm chữ', eraser: 'Tẩy', zone: 'Khoanh vùng' }[t] || t;
+}
+
+function selectColor(color, el) {
+    app.selectedColor = color;
+    document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+}
+
+function selectPenSize(size, el) {
+    app.penSize = size;
+    document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+    if (el) el.classList.add('selected');
+}
+
+async function nextPage() {
+    if (app.currentPage < app.totalPages) {
+        app.currentPage = Math.min(app.currentPage + 2, app.totalPages);
+        await renderPages();
+    }
+}
+async function prevPage() {
+    if (app.currentPage > 1) {
+        app.currentPage = Math.max(app.currentPage - 2, 1);
+        await renderPages();
+    }
+}
+function goToPage(pageNum) {
+    if (pageNum >= 1 && pageNum <= app.totalPages) {
+        app.currentPage = pageNum % 2 === 0 ? pageNum - 1 : pageNum;
+        renderPages();
+        document.querySelectorAll('.lesson-item').forEach(i => i.classList.remove('active'));
+    }
+}
+
+async function zoomIn()  { app.zoom = Math.min(app.zoom * 1.2, 3); await renderPages(); updateZoomInfo(); }
+async function zoomOut() { app.zoom = Math.max(app.zoom / 1.2, 0.5); await renderPages(); updateZoomInfo(); }
+
+async function fitToPage() {
+    const container = document.getElementById('viewerContent');
+    const page = await app.pdfDoc.getPage(app.currentPage);
+    const vp = page.getViewport({ scale: 1 });
+    const scaleX = (container.clientWidth  - 40) / vp.width;
+    const scaleY = (container.clientHeight - 100) / vp.height;
+    app.zoom = Math.min(scaleX, scaleY);
+    await renderPages(); updateZoomInfo();
+}
+
+function updatePageInfo() {
+    const p1 = app.currentPage;
+    const p2 = Math.min(app.currentPage + 1, app.totalPages);
+    document.getElementById('pageInfo').textContent = p2 > p1 ? `${p1}-${p2} / ${app.totalPages}` : `${p1} / ${app.totalPages}`;
+}
+function updateZoomInfo() { document.getElementById('zoomInfo').textContent = `${Math.round(app.zoom * 100)}%`; }
+function updateNavigationButtons() {
+    document.getElementById('prevBtn').disabled = app.currentPage <= 1;
+    document.getElementById('nextBtn').disabled = app.currentPage >= app.totalPages;
+}
+
+function initializeSidebar() {
+    const content = document.getElementById('sidebarContent');
+    content.innerHTML = '';
+    tableOfContents.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'lesson-item';
+        el.innerHTML = `<span>${item.title}</span><span>${item.page}</span>`;
+        el.onclick = () => { goToPage(item.page); el.classList.add('active'); };
+        content.appendChild(el);
+    });
+}
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+function loadAllZones() {
+    try {
+        const saved = localStorage.getItem('pdf_zones_v2');
+        if (saved) zoneState.zones = JSON.parse(saved);
+    } catch (e) { zoneState.zones = {}; }
+}
+function saveAllZones() { localStorage.setItem('pdf_zones_v2', JSON.stringify(zoneState.zones)); }
+
+function renderZones(pageNum) {
+    const pageWrapper = document.getElementById(`page-${pageNum}`);
+    if (!pageWrapper) return;
+    pageWrapper.querySelectorAll('.zone-overlay').forEach(z => z.remove());
+    const zones = zoneState.zones[pageNum] || [];
+    const pdfCanvas = document.getElementById(`pdf-canvas-${pageNum}`);
+    const scaleX = pdfCanvas.offsetWidth  / pdfCanvas.width;
+    const scaleY = pdfCanvas.offsetHeight / pdfCanvas.height;
+
+    zones.forEach((zone, idx) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'zone-overlay';
+        overlay.style.left   = (zone.x * scaleX) + 'px';
+        overlay.style.top    = (zone.y * scaleY) + 'px';
+        overlay.style.width  = (zone.w * scaleX) + 'px';
+        overlay.style.height = (zone.h * scaleY) + 'px';
+
+        if (zone.label) {
+            const lbl = document.createElement('div');
+            lbl.className = 'zone-label'; lbl.textContent = zone.label;
+            overlay.appendChild(lbl);
+        }
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'zone-edit-btn';
+        editBtn.innerHTML = '<i class="fas fa-pen"></i>';
+        editBtn.title = 'Làm bài tập';
+        editBtn.onclick = (e) => { e.stopPropagation(); openExModal(pageNum, zone); };
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'zone-delete-btn';
+        delBtn.innerHTML = '<i class="fas fa-times"></i>';
+        delBtn.title = 'Xóa vùng';
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (confirm('Xóa vùng bài tập này?')) {
+                zoneState.zones[pageNum].splice(idx, 1);
+                saveAllZones(); renderZones(pageNum);
+            }
+        };
+
+        overlay.appendChild(editBtn); overlay.appendChild(delBtn);
+        overlay.ondblclick = () => openExModal(pageNum, zone);
+        pageWrapper.appendChild(overlay);
+    });
+}
+
+function startZoneDraw(e, pageNum) {
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    const rect = canvas.getBoundingClientRect();
+    zoneState.isDragging = true;
+    zoneState.startX = e.clientX - rect.left;
+    zoneState.startY = e.clientY - rect.top;
+    zoneState.currentPageNum = pageNum;
+    const box = document.getElementById('selectionBox');
+    box.style.display = 'block';
+    box.style.left = e.clientX + 'px'; box.style.top = e.clientY + 'px';
+    box.style.width = '0'; box.style.height = '0';
+}
+
+document.addEventListener('mousemove', (e) => {
+    if (!zoneState.isDragging) return;
+    const pageNum = zoneState.currentPageNum;
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const startClientX = rect.left + zoneState.startX;
+    const startClientY = rect.top  + zoneState.startY;
+    const box = document.getElementById('selectionBox');
+    box.style.left   = Math.min(e.clientX, startClientX) + 'px';
+    box.style.top    = Math.min(e.clientY, startClientY) + 'px';
+    box.style.width  = Math.abs(e.clientX - startClientX) + 'px';
+    box.style.height = Math.abs(e.clientY - startClientY) + 'px';
+});
+
+document.addEventListener('mouseup', (e) => {
+    if (!zoneState.isDragging) return;
+    zoneState.isDragging = false;
+    document.getElementById('selectionBox').style.display = 'none';
+    const pageNum = zoneState.currentPageNum;
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+    const endX = e.clientX - rect.left;
+    const endY = e.clientY - rect.top;
+    const x = Math.min(zoneState.startX, endX);
+    const y = Math.min(zoneState.startY, endY);
+    const w = Math.abs(endX - zoneState.startX);
+    const h = Math.abs(endY - zoneState.startY);
+    if (w < 20 || h < 20) return;
+    if (!zoneState.zones[pageNum]) zoneState.zones[pageNum] = [];
+    const zonesOnPage = zoneState.zones[pageNum].length;
+    const zoneName = "Bài tập " + (zonesOnPage + 1);
+    zoneState.zones[pageNum].push({ x: x*dpr, y: y*dpr, w: w*dpr, h: h*dpr, label: zoneName, id: Date.now() });
+    saveAllZones();
+    renderZones(pageNum);
+    showToast('Đã tạo vùng bài tập!', 'success');
+});
+
+// ===== EXERCISE MODAL =====
+let exTool = 'pen', exColor = '#000000', exPenSize = 4;
+let exDrawing = false, exUndoStk = [], exCurZone = null;
+
+function initExCanvas() {
+    const dc = document.getElementById('exDrawCanvas');
+    dc.addEventListener('mousedown', (e) => {
+        if (exTool === 'text') { showExTextPop(e); return; }
+        exDrawing = true;
+        exUndoStk.push(dc.toDataURL());
+        const [x, y] = exPos(e);
+        const ctx = dc.getContext('2d');
+        ctx.beginPath(); ctx.moveTo(x, y);
+    });
+    dc.addEventListener('mousemove', (e) => {
+        if (!exDrawing) return;
+        const [x, y] = exPos(e);
+        const ctx = dc.getContext('2d');
+        ctx.setLineDash([]); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        if (exTool === 'eraser') {
+            ctx.lineWidth = exPenSize * 4;
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.strokeStyle = 'rgba(0,0,0,1)';
+        } else {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.lineWidth = exTool === 'hl' ? exPenSize * 2.5 : exPenSize;
+            ctx.strokeStyle = exTool === 'hl' ? exColor + '55' : exColor;
+        }
+        ctx.lineTo(x, y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x, y);
+    });
+    dc.addEventListener('mouseup',    () => { exDrawing = false; dc.getContext('2d').globalCompositeOperation = 'source-over'; exSaveDraw(); });
+    dc.addEventListener('mouseleave', () => { exDrawing = false; dc.getContext('2d').globalCompositeOperation = 'source-over'; });
+    dc.addEventListener('touchstart', (e) => { e.preventDefault(); dc.dispatchEvent(new MouseEvent('mousedown',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY})); }, {passive:false});
+    dc.addEventListener('touchmove',  (e) => { e.preventDefault(); dc.dispatchEvent(new MouseEvent('mousemove',{clientX:e.touches[0].clientX,clientY:e.touches[0].clientY})); }, {passive:false});
+    dc.addEventListener('touchend',   (e) => { e.preventDefault(); dc.dispatchEvent(new MouseEvent('mouseup')); }, {passive:false});
+    document.getElementById('exTextIn').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter')  { exPlaceText(); document.getElementById('exTextPop').style.display = 'none'; }
+        if (e.key === 'Escape') document.getElementById('exTextPop').style.display = 'none';
+    });
+}
+
+function exPos(e) {
+    const r = document.getElementById('exDrawCanvas').getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+}
+
+async function openExModal(pn, zone) {
+    exCurZone = { pn, zone };
+    document.getElementById('exTitle').textContent = zone.label || 'Bài tập';
+    document.getElementById('exResult').classList.remove('open');
+    document.getElementById('exModal').classList.add('open');
+
+    const maxW = window.innerWidth * 0.9;
+    const maxH = window.innerHeight * 0.74;
+    const scale = Math.min(maxW / zone.w, maxH / zone.h, 1.5);
+    const W = Math.round(zone.w * scale);
+    const H = Math.round(zone.h * scale);
+
+    const pc = document.getElementById('exPageCanvas');
+    const dc = document.getElementById('exDrawCanvas');
+    pc.width = W; pc.height = H; pc.style.width = W + 'px'; pc.style.height = H + 'px';
+    dc.width = W; dc.height = H; dc.style.width = W + 'px'; dc.style.height = H + 'px';
+    dc.getContext('2d').clearRect(0, 0, W, H);
+
+    const page = await app.pdfDoc.getPage(pn);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const renderScale = Math.max(app.zoom * dpr, 2.5);
+    const vp = page.getViewport({ scale: renderScale });
+    const origScale = app.zoom * dpr;
+    const ratio = renderScale / origScale;
+
+    const tmp = document.createElement('canvas');
+    tmp.width = vp.width; tmp.height = vp.height;
+    await page.render({ canvasContext: tmp.getContext('2d'), viewport: vp }).promise;
+
+    pc.getContext('2d').drawImage(tmp, zone.x*ratio, zone.y*ratio, zone.w*ratio, zone.h*ratio, 0, 0, W, H);
+
+    const saved = localStorage.getItem(`ex_z${zone.id || 0}_p${pn}`);
+    if (saved) {
+        const img = new Image();
+        img.onload = () => dc.getContext('2d').drawImage(img, 0, 0);
+        img.src = saved;
+    }
+    exUndoStk = [];
+}
+
+function exSetTool(t) {
+    exTool = t;
+    document.querySelectorAll('[id^="xt-"]').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('xt-' + t);
+    if (btn) btn.classList.add('active');
+    document.getElementById('exDrawCanvas').style.cursor = t === 'text' ? 'text' : 'crosshair';
+}
+
+function exPickColor(el) {
+    document.querySelectorAll('.ex-dot').forEach(d => d.classList.remove('sel'));
+    el.classList.add('sel');
+    exColor = el.dataset.c;
+}
+
+function exUndo() {
+    if (!exUndoStk.length) return;
+    const dc = document.getElementById('exDrawCanvas');
+    const img = new Image();
+    img.onload = () => { dc.getContext('2d').clearRect(0, 0, dc.width, dc.height); dc.getContext('2d').drawImage(img, 0, 0); };
+    img.src = exUndoStk.pop();
+}
+
+function exClear() {
+    if (!confirm('Xóa tất cả nội dung đã vẽ?')) return;
+    const dc = document.getElementById('exDrawCanvas');
+    exUndoStk.push(dc.toDataURL());
+    dc.getContext('2d').clearRect(0, 0, dc.width, dc.height);
+    exSaveDraw();
+}
+
+function exSaveDraw() {
+    if (!exCurZone) return;
+    localStorage.setItem(`ex_z${exCurZone.zone.id || 0}_p${exCurZone.pn}`, document.getElementById('exDrawCanvas').toDataURL());
+}
+
+function exClose() {
+    exSaveDraw();
+    document.getElementById('exModal').classList.remove('open');
+    document.getElementById('textInputPopup').style.display = 'none';
+}
+
+function exTryAgain() {
+    document.getElementById('exResult').classList.remove('open');
+    exClear();
+}
+
+function showExTextPop(e) {
+    const tp = document.getElementById('exTextPop');
+    tp.style.left = e.clientX + 'px'; tp.style.top = e.clientY + 'px';
+    tp.style.display = 'block';
+    tp._cx = e.clientX; tp._cy = e.clientY;
+    const inp = document.getElementById('exTextIn');
+    inp.value = ''; inp.focus();
+}
+
+function exPlaceText() {
+    const text = document.getElementById('exTextIn').value.trim();
+    if (!text) return;
+    const dc = document.getElementById('exDrawCanvas');
+    const r = dc.getBoundingClientRect();
+    const tp = document.getElementById('exTextPop');
+    exUndoStk.push(dc.toDataURL());
+    const ctx = dc.getContext('2d');
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.font = `bold ${exPenSize * 4}px sans-serif`;
+    ctx.fillStyle = exColor;
+    ctx.fillText(text, tp._cx - r.left, tp._cy - r.top);
+    exSaveDraw();
+}
+
+function insertCurrentAnswer() {
+    if (!exCurZone || !exCurZone.zone) return;
+    const pn = exCurZone.pn;
+    const zoneLabel = exCurZone.zone.label;
+    const match = zoneLabel.match(/(\d+)$/);
+    const btNum = match ? match[1] : '1';
+    const key = `${pn}_${btNum}`;
+    const answerImgUrl = exerciseAnswers[key];
+    if (!answerImgUrl) { showToast(`Chưa có đáp án — key: "${key}"`, 'error'); return; }
+    const modalCanvas = document.getElementById('exPageCanvas');
+    const ctx = modalCanvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+        const ratio = Math.min(modalCanvas.width / img.width, modalCanvas.height / img.height);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        const x = (modalCanvas.width - w) / 2;
+        const y = (modalCanvas.height - h) / 2;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, modalCanvas.width, modalCanvas.height);
+        ctx.drawImage(img, x, y, w, h);
+        showToast('Đã hiện đáp án!', 'success');
+    };
+    img.onerror = () => showToast('Lỗi tải ảnh đáp án!', 'error');
+    img.src = answerImgUrl;
+}
+
+function stampAnswerImage(pageNum, zone, imageUrl) {
+    const canvas = document.getElementById(`annotation-canvas-${pageNum}`);
+    if (!canvas) { showToast('Không tìm thấy trang để chèn đáp án!', 'error'); return; }
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+        saveState(pageNum);
+        ctx.globalAlpha = 0.92;
+        const ratio = Math.min(zone.w / img.width, zone.h / img.height);
+        const w = img.width * ratio;
+        const h = img.height * ratio;
+        ctx.drawImage(img, zone.x, zone.y, w, h);
+        ctx.globalAlpha = 1.0;
+        saveAnnotations(pageNum);
+        showToast('Đã chèn đáp án lên trang!', 'success');
+    };
+    img.onerror = () => { showToast(`Lỗi tải ảnh: "${imageUrl}"`, 'error'); };
+    img.src = imageUrl;
+}
+
+// ===== CHẤM BÀI — tích hợp trao chìa khóa =====
+async function exCheck() {
+    document.getElementById('exSpinner').classList.add('open');
+    await new Promise(r => setTimeout(r, 1000));
+
+    try {
+        const dc = document.getElementById('exDrawCanvas');
+        const ctx = dc.getContext('2d');
+        const imgData = ctx.getImageData(0, 0, dc.width, dc.height);
+        const pixels = imgData.data;
+
+        let drawnPixels = 0;
+        const totalPixels = dc.width * dc.height;
+        const colorBuckets = {};
+
+        for (let i = 3; i < pixels.length; i += 4) {
+            if (pixels[i] > 10) {
+                drawnPixels++;
+                const r = Math.round(pixels[i-3]/32)*32;
+                const g = Math.round(pixels[i-2]/32)*32;
+                const b = Math.round(pixels[i-1]/32)*32;
+                const key = `${r},${g},${b}`;
+                colorBuckets[key] = (colorBuckets[key] || 0) + 1;
+            }
+        }
+
+        const coverage = drawnPixels / totalPixels;
+        const numColors = Object.keys(colorBuckets).length;
+
+        const stripH = Math.floor(dc.height / 4);
+        const strips = [0, 0, 0, 0];
+        for (let y = 0; y < dc.height; y++) {
+            const strip = Math.min(3, Math.floor(y / stripH));
+            for (let x = 0; x < dc.width; x++) {
+                const idx = (y * dc.width + x) * 4 + 3;
+                if (pixels[idx] > 10) strips[strip]++;
+            }
+        }
+        const activeStrips = strips.filter(s => s > 0).length;
+
+        let score, stars, emoji, feedback;
+
+        if (coverage < 0.002) {
+            score = 0; stars = 1; emoji = '😴';
+            feedback = 'Bạn chưa bắt đầu làm bài. Hãy thử khoanh hoặc viết đáp án nhé!';
+        } else if (coverage < 0.008) {
+            score = Math.min(25, Math.round(coverage * 3200));
+            stars = 1; emoji = '💪';
+            feedback = 'Bạn mới viết được vài nét, cố gắng hoàn thành thêm nhé!';
+        } else if (coverage < 0.025) {
+            score = Math.min(50, 25 + Math.round((coverage - 0.008) * 926));
+            stars = 2; emoji = '📝';
+            feedback = activeStrips >= 3 ? 'Bạn làm bài đều khắp trang, rất tốt! Hãy hoàn thiện thêm nhé!' : 'Bạn đang làm tốt, hãy cố gắng làm thêm các câu nữa!';
+        } else if (coverage < 0.06) {
+            score = Math.min(75, 50 + Math.round((coverage - 0.025) * 833));
+            stars = 3; emoji = '😊';
+            feedback = numColors >= 4 ? 'Bạn dùng nhiều màu rất đẹp, bài làm cẩn thận!' : 'Bài làm khá đầy đủ, tiếp tục cố gắng!';
+        } else if (coverage < 0.12) {
+            score = Math.min(90, 75 + Math.round((coverage - 0.06) * 250));
+            stars = 4; emoji = '🌟';
+            feedback = (activeStrips === 4 && numColors >= 3) ? 'Tuyệt vời! Bạn làm bài rất đầy đủ và phân bố đều!' : 'Rất tốt! Bài làm của bạn cẩn thận và đầy đủ!';
+        } else {
+            score = Math.min(100, 90 + Math.round((coverage - 0.12) * 125));
+            stars = 5; emoji = '🏆';
+            feedback = 'Xuất sắc! Bài làm rất chỉn chu, cô/thầy rất hài lòng!';
+        }
+
+        if (numColors >= 5 && score < 100) score = Math.min(100, score + 3);
+        if (activeStrips === 4 && score >= 50 && score < 100) score = Math.min(100, score + 2);
+        score = Math.min(100, score);
+
+        // === HIỆN ĐÁP ÁN NGAY trên canvas modal ===
+        insertCurrentAnswer();
+
+        showToast(`Hoàn thành: ${score}% ✨`, 'success');
+
+        // === TRAO CHÌA KHÓA cho mọi bài nộp (kể cả điểm thấp) — đóng modal và hiện popup ===
+        setTimeout(() => {
+            document.getElementById('exResult').classList.remove('open');
+            document.getElementById('exModal').classList.remove('open');
+            thAwardKeyForCurrentPage();
+        }, 2200);
+
+    } catch (err) {
+        console.error(err);
+        showToast('Lỗi: ' + err.message, 'error');
+    } finally {
+        document.getElementById('exSpinner').classList.remove('open');
+    }
+}
+
+// ===== UTILS =====
+function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+}
+function closeApp() {
+    if (confirm('Đóng ứng dụng?')) window.close();
+}
+function showLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('active', show);
+}
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+    toast.innerHTML = `<i class="fas ${icons[type]}"></i><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'slideIn 0.3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+function setupEventListeners() {
+    document.addEventListener('mousedown', (e) => {
+        const popup   = document.getElementById('textInputPopup');
+        const textBtn = document.getElementById('tool-text');
+        if (!popup.contains(e.target) && e.target !== textBtn && !e.target.classList.contains('annotation-canvas')) {
+            popup.style.display = 'none';
+        }
+    });
+    window.addEventListener('resize', () => { if (app.pdfDoc) renderPages(); });
+    setTimeout(() => {
+        const btn = document.getElementById('textInputClose');
+        if (btn) btn.onclick = function() { document.getElementById('textInputPopup').style.display = 'none'; };
+    }, 0);
+}
+
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        switch (e.key) {
+            case 'ArrowLeft':  e.preventDefault(); prevPage(); break;
+            case 'ArrowRight': e.preventDefault(); nextPage(); break;
+            case '+': case '=': e.preventDefault(); zoomIn();  break;
+            case '-': case '_': e.preventDefault(); zoomOut(); break;
+            case 'Escape':
+                selectTool('pointer');
+                document.getElementById('exModal').classList.remove('open');
+                break;
+            case 'z': case 'Z':
+                if (e.ctrlKey || e.metaKey) { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+                break;
+        }
+    });
+}
+
+// ===== TTS =====
+let ttsCurrentPage = null, ttsSpeaking = false;
+
+function addTTSButton(wrapper, pageNum) {
+    wrapper.querySelectorAll('.tts-btn').forEach(b => b.remove());
+    const btn = document.createElement('button');
+    btn.className = 'tts-btn';
+    btn.id = `tts-btn-${pageNum}`;
+    btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    btn.onclick = (e) => { e.stopPropagation(); toggleTTS(pageNum, btn); };
+    wrapper.appendChild(btn);
+}
+
+async function toggleTTS(pageNum, btn) {
+    if (ttsSpeaking && ttsCurrentPage === pageNum) {
+        window.speechSynthesis.cancel();
+        ttsSpeaking = false; ttsCurrentPage = null;
+        btn.classList.remove('playing');
+        btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        return;
+    }
+    window.speechSynthesis.cancel();
+    document.querySelectorAll('.tts-btn').forEach(b => {
+        b.classList.remove('playing');
+        b.innerHTML = '<i class="fas fa-volume-up"></i>';
+    });
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    try {
+        const page = await app.pdfDoc.getPage(pageNum);
+        const tc = await page.getTextContent();
+        const text = tc.items.map(i => i.str).join(' ').replace(/\s+/g, ' ').trim();
+        if (!text) {
+            showToast('Trang này không có text để đọc', 'info');
+            btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            return;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'vi-VN';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        const voices = window.speechSynthesis.getVoices();
+        const viVoice = voices.find(v => v.lang.startsWith('vi'));
+        if (viVoice) utterance.voice = viVoice;
+
+        utterance.onstart = () => {
+            ttsSpeaking = true; ttsCurrentPage = pageNum;
+            btn.classList.add('playing');
+            btn.innerHTML = '<i class="fas fa-stop"></i>';
+        };
+        utterance.onend = () => {
+            ttsSpeaking = false; ttsCurrentPage = null;
+            btn.classList.remove('playing');
+            btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        };
+        utterance.onerror = (e) => {
+            if (e.error === 'interrupted' || e.error === 'canceled') return;
+            ttsSpeaking = false;
+            btn.classList.remove('playing');
+            btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        };
+        window.speechSynthesis.speak(utterance);
+    } catch(err) {
+        console.error(err);
+        btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    }
+}
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
+// ===== NHẠC NỀN — SPOTIFY =====
+let spotifyOpen = false;
+
+function toggleMusic() {
+    const popup = document.getElementById('spotifyPopup');
+    const btn   = document.getElementById('musicBtn');
+    spotifyOpen = !spotifyOpen;
+    popup.classList.toggle('open', spotifyOpen);
+    btn.classList.toggle('playing', spotifyOpen);
+    btn.title = spotifyOpen ? 'Đóng Spotify' : 'Mở nhạc Spotify';
+}
+
+// Đóng popup khi click ra ngoài
+document.addEventListener('mousedown', (e) => {
+    const popup = document.getElementById('spotifyPopup');
+    const btn   = document.getElementById('musicBtn');
+    if (spotifyOpen && popup &&
+        !popup.contains(e.target) && !btn.contains(e.target)) {
+        spotifyOpen = false;
+        popup.classList.remove('open');
+        btn.classList.remove('playing');
+        btn.title = 'Mở nhạc Spotify';
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Học Liệu Số - Trang Chủ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+    --primary: #667eea;
+    --primary-dark: #764ba2;
+    --accent: #f6a623;
+    --bg: #f4f6fb;
+    --white: #ffffff;
+    --text: #2d3748;
+    --text-light: #718096;
+    --border: #e2e8f0;
+    --card-shadow: 0 4px 20px rgba(102,126,234,0.10);
+    --radius: 14px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(102,126,234,0.08);
+}
+
+.header-inner {
+    max-width: 1280px; margin: 0 auto;
+    padding: 0 24px;
+    display: flex; align-items: center;
+    justify-content: space-between; height: 64px;
+    gap: 24px;
+}
+
+.logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; flex-shrink: 0;
+}
+
+.logo-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 18px;
+}
+
+.logo-text { font-size: 17px; font-weight: 800; color: var(--primary-dark); line-height: 1.1; }
+.logo-sub  { font-size: 11px; color: var(--text-light); font-weight: 400; }
+
+nav { display: flex; align-items: center; gap: 4px; }
+
+nav a {
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; color: var(--text);
+    text-decoration: none; transition: all 0.2s;
+    white-space: nowrap;
+}
+nav a:hover { background: #f0f2ff; color: var(--primary); }
+nav a.active { color: var(--primary); font-weight: 700; }
+
+.nav-dropdown { position: relative; }
+.nav-dropdown > a::after { content: ' ▾'; font-size: 10px; }
+
+.header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.btn-login {
+    padding: 8px 20px; border-radius: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; font-size: 14px; font-weight: 600;
+    border: none; cursor: pointer; transition: opacity 0.2s;
+    text-decoration: none;
+}
+.btn-login:hover { opacity: 0.9; }
+
+/* ===== SEARCH BAR ===== */
+.search-section {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    padding: 28px 24px;
+}
+
+.search-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; gap: 12px; align-items: center;
+}
+
+.search-select {
+    padding: 12px 16px; border-radius: 10px;
+    border: none; font-size: 14px; font-weight: 500;
+    background: rgba(255,255,255,0.18); color: white;
+    cursor: pointer; outline: none; flex-shrink: 0;
+    appearance: none; padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+}
+.search-select option { background: #764ba2; }
+
+.search-input-wrap {
+    flex: 1; position: relative;
+}
+.search-input-wrap input {
+    width: 100%; padding: 12px 48px 12px 18px;
+    border-radius: 10px; border: none;
+    font-size: 14px; outline: none;
+    background: white; color: var(--text);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+.search-input-wrap input::placeholder { color: #aaa; }
+.search-btn {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none; color: white; width: 32px; height: 32px;
+    border-radius: 8px; cursor: pointer; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ===== GRADE TABS ===== */
+.grade-tabs {
+    background: white; border-bottom: 1px solid var(--border);
+    overflow-x: auto; scrollbar-width: none;
+}
+.grade-tabs::-webkit-scrollbar { display: none; }
+
+.grade-tabs-inner {
+    max-width: 1280px; margin: 0 auto; padding: 0 24px;
+    display: flex; gap: 4px; align-items: center; height: 48px;
+    white-space: nowrap;
+}
+
+.grade-tab {
+    padding: 6px 14px; border-radius: 20px; font-size: 13px;
+    font-weight: 500; cursor: pointer; transition: all 0.2s;
+    color: var(--text-light); border: none; background: none;
+    flex-shrink: 0;
+}
+.grade-tab:hover { background: #f0f2ff; color: var(--primary); }
+.grade-tab.active {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; font-weight: 600;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main-layout {
+    max-width: 1280px; margin: 0 auto; padding: 28px 24px;
+    display: grid; grid-template-columns: 240px 1fr; gap: 24px;
+}
+
+/* ===== SIDEBAR FILTER ===== */
+.filter-sidebar {
+    background: white; border-radius: var(--radius);
+    padding: 20px; height: fit-content;
+    box-shadow: var(--card-shadow);
+    position: sticky; top: 80px;
+}
+
+.filter-title {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; padding: 10px 16px; border-radius: 8px;
+    font-size: 13px; font-weight: 700; margin-bottom: 20px;
+    text-align: center; letter-spacing: 0.5px;
+}
+
+.filter-group { margin-bottom: 20px; }
+.filter-group-label {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 10px; display: block;
+}
+
+.filter-radio, .filter-check {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px; cursor: pointer; font-size: 13px; color: var(--text);
+}
+.filter-radio input, .filter-check input { accent-color: var(--primary); }
+
+.filter-divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+.btn-clear {
+    width: 100%; padding: 9px; border-radius: 8px;
+    border: 1.5px solid var(--border); background: white;
+    font-size: 13px; color: var(--text-light); cursor: pointer;
+    font-weight: 500; transition: all 0.2s;
+}
+.btn-clear:hover { border-color: var(--primary); color: var(--primary); }
+
+/* ===== CONTENT AREA ===== */
+.content-area { min-width: 0; }
+
+.result-info {
+    font-size: 13px; color: var(--text-light); margin-bottom: 20px;
+}
+.result-info strong { color: var(--primary); }
+
+/* ===== SECTION ===== */
+.section { margin-bottom: 32px; }
+
+.section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+    content: '';
+    width: 4px; height: 18px; border-radius: 2px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: inline-block;
+}
+
+.section-more {
+    font-size: 13px; color: var(--primary); text-decoration: none;
+    font-weight: 500; display: flex; align-items: center; gap: 4px;
+}
+.section-more:hover { text-decoration: underline; }
+
+/* ===== BOOK GRID ===== */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.book-card {
+    background: white; border-radius: var(--radius);
+    overflow: hidden; cursor: pointer;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none; color: inherit;
+    display: block;
+}
+.book-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(102,126,234,0.18);
+}
+
+.book-cover {
+    width: 100%; aspect-ratio: 3/4;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; position: relative; overflow: hidden;
+}
+
+.book-cover-1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+.book-cover-2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.book-cover-3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+.book-cover-4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.book-cover-5 { background: linear-gradient(135deg, #fa709a, #fee140); }
+.book-cover-6 { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
+.book-cover-7 { background: linear-gradient(135deg, #fccb90, #d57eeb); }
+.book-cover-8 { background: linear-gradient(135deg, #e0c3fc, #8ec5fc); }
+
+.book-cover-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,0.35); color: white;
+    font-size: 11px; font-weight: 700; padding: 6px 8px;
+    text-align: center;
+}
+
+.book-info { padding: 10px 12px; }
+.book-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
+
+/* ===== MEDIA GRID ===== */
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.media-card {
+    background: white; border-radius: var(--radius);
+    overflow: hidden; cursor: pointer;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.media-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(102,126,234,0.18); }
+
+.media-thumb {
+    width: 100%; aspect-ratio: 16/9;
+    background: linear-gradient(135deg, #667eea22, #764ba222);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+}
+
+.media-thumb-bg {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+}
+
+.play-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(102,126,234,0.9);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 16px; position: relative; z-index: 1;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.4);
+}
+
+.pdf-badge {
+    position: absolute; top: 8px; left: 8px;
+    background: #e53e3e; color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px;
+}
+.ppt-badge {
+    position: absolute; top: 8px; left: 8px;
+    background: #dd6b20; color: white;
+    font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px;
+}
+
+.media-info { padding: 10px 12px; }
+.media-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
+
+/* ===== OPEN BOOK BTN ===== */
+.open-book-banner {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: var(--radius); padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px; box-shadow: var(--card-shadow);
+}
+.open-book-text h3 { color: white; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.open-book-text p  { color: rgba(255,255,255,0.8); font-size: 13px; }
+.btn-open-book {
+    background: white; color: var(--primary);
+    padding: 10px 22px; border-radius: 20px;
+    font-size: 14px; font-weight: 700; border: none;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: all 0.2s; text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+}
+.btn-open-book:hover { background: #f0f2ff; transform: scale(1.04); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.book-card, .media-card {
+    animation: fadeUp 0.4s ease both;
+}
+.book-card:nth-child(1) { animation-delay: 0.05s; }
+.book-card:nth-child(2) { animation-delay: 0.10s; }
+.book-card:nth-child(3) { animation-delay: 0.15s; }
+.book-card:nth-child(4) { animation-delay: 0.20s; }
+.book-card:nth-child(5) { animation-delay: 0.25s; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .filter-sidebar { display: none; }
+    nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="header-inner">
+        <a href="#" class="logo">
+            <div>
+                <div class="logo-text">Học Liệu Số</div>
+                <div class="logo-sub">Nền tảng giáo dục Việt Nam</div>
+            </div>
+        </a>
+
+        <nav>
+            <div class="nav-dropdown"><a href="#">Về Giáo Dục Việt</a></div>
+            <div class="nav-dropdown"><a href="#">Sản phẩm</a></div>
+            <a href="#" class="active">Học liệu số</a>
+            <a href="#">Luyện thi TN THPT</a>
+            <a href="#">Tin tức</a>
+        </nav>
+
+        <div class="header-right">
+            <a href="#" class="btn-login"><i class="fas fa-user"></i> Đăng nhập</a>
+        </div>
+    </div>
+</header>
+
+<!-- SEARCH -->
+<div class="search-section">
+    <div class="search-inner">
+        <select class="search-select">
+            <option>Hệ thống cảnh di...</option>
+            <option>Tiểu học</option>
+            <option>THCS</option>
+            <option>THPT</option>
+        </select>
+        <div class="search-input-wrap">
+            <input type="text" placeholder="Gõ một keyword (ví dụ: Đề thi THPT 2025, Toán 12,...)">
+            <button class="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- GRADE TABS -->
+<div class="grade-tabs">
+    <div class="grade-tabs-inner">
+        <button class="grade-tab active">Lớp 1</button>
+        <button class="grade-tab">Lớp 2</button>
+        <button class="grade-tab">Lớp 3</button>
+        <button class="grade-tab">Lớp 4</button>
+        <button class="grade-tab">Lớp 5</button>
+        <button class="grade-tab">Lớp 6</button>
+        <button class="grade-tab">Lớp 7</button>
+        <button class="grade-tab">Lớp 8</button>
+        <button class="grade-tab">Lớp 9</button>
+        <button class="grade-tab">Lớp 10</button>
+        <button class="grade-tab">Lớp 11</button>
+        <button class="grade-tab">Lớp 12</button>
+        <button class="grade-tab">Ôn thi THPT</button>
+        <button class="grade-tab">GD KN Sống</button>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-layout">
+
+    <!-- FILTER SIDEBAR -->
+    <aside class="filter-sidebar">
+        <div class="filter-title">TÌM KIẾM TÀI NGUYÊN BẠN CẦN</div>
+
+        <div class="filter-group">
+            <span class="filter-group-label">Môn</span>
+            <label class="filter-radio"><input type="radio" name="mon" checked> Tiếng Việt</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Toán</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Tiếng Anh</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Đạo đức</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Tự nhiên và Xã hội</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Giáo dục thể chất</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Âm nhạc</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Mĩ thuật</label>
+            <label class="filter-radio"><input type="radio" name="mon"> Hoạt động trải nghiệm</label>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group">
+            <span class="filter-group-label">Sách số</span>
+            <label class="filter-check"><input type="checkbox" checked> Sách điện tử</label>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group">
+            <span class="filter-group-label">Học liệu</span>
+            <label class="filter-check"><input type="checkbox" checked> Tiết dạy minh họa</label>
+            <label class="filter-check"><input type="checkbox" checked> Giới thiệu, tập huấn SGK</label>
+            <label class="filter-check"><input type="checkbox"> Đối tác Noviy Disk</label>
+            <label class="filter-check"><input type="checkbox"> STEM</label>
+            <label class="filter-check"><input type="checkbox" checked> Video minh hoạ</label>
+            <label class="filter-check"><input type="checkbox" checked> Tài liệu bổ trợ</label>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <div class="filter-group">
+            <span class="filter-group-label">Đề kiểm tra</span>
+            <label class="filter-check"><input type="checkbox" checked> Đề ôn luyện tuần</label>
+            <label class="filter-check"><input type="checkbox" checked> Đề ôn luyện giữa kì</label>
+            <label class="filter-check"><input type="checkbox" checked> Đề ôn luyện cuối kì</label>
+        </div>
+
+        <button class="btn-clear">Xóa tất cả</button>
+    </aside>
+
+    <!-- CONTENT -->
+    <div class="content-area">
+        <p class="result-info">Chúng tôi tìm thấy <strong>428 kết quả</strong> phù hợp với lựa chọn của bạn</p>
+        <!-- Sách điện tử -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Sách điện tử</div>
+                <a href="#" class="section-more">Xem thêm <i class="fas fa-chevron-right"></i></a>
+            </div>
+            <div class="book-grid">
+                <!-- Card 1 -->
+<a href="Tập 1.html" class="book-card">
+    <div class="book-cover book-cover-1">
+        <img src="Tieng viet 5 tap 1 bìa.jpg" style="width:100%; height:100%; object-fit:cover;">
+        <div class="book-cover-label">Tiếng Việt 5 - 1</div>
+    </div>
+    <div class="book-info"><div class="book-title">Tiếng Việt 5 – 1</div></div>
+</a>
+
+<!-- Card 2 -->
+<a href="Tập 2.html" class="book-card">
+    <div class="book-cover book-cover-2">
+        <img src="Tieng viet 5 tap 2 bìa.jpg" style="width:100%; height:100%; object-fit:cover;">
+        <div class="book-cover-label">Tiếng Việt 5 - 2</div>
+    </div>
+    <div class="book-info"><div class="book-title">Tiếng Việt 5 – 2</div></div>
+</a>
+                </div>
+
+        <!-- Tiết dạy minh họa -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Tiết dạy minh họa</div>
+                <a href="#" class="section-more">Xem thêm <i class="fas fa-chevron-right"></i></a>
+            </div>
+            <div class="media-grid">
+                <div class="media-card">
+                    <div class="media-thumb">
+                        <div class="media-thumb-bg">🎬</div>
+                        <div class="play-btn"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="media-info"><div class="media-title">Tiết dạy minh họa TV 1</div></div>
+                </div>
+                <div class="media-card">
+                    <div class="media-thumb">
+                        <div class="media-thumb-bg">🎥</div>
+                        <div class="play-btn"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="media-info"><div class="media-title">Tiết dạy minh họa TV 2</div></div>
+                </div>
+                <div class="media-card">
+                    <div class="media-thumb">
+                        <div class="media-thumb-bg">📹</div>
+                        <div class="play-btn"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="media-info"><div class="media-title">Tiết dạy minh họa TV 3</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Giới thiệu, tập huấn SGK -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Giới thiệu, tập huấn SGK</div>
+                <a href="#" class="section-more">Xem thêm <i class="fas fa-chevron-right"></i></a>
+            </div>
+            <div class="media-grid">
+                <div class="media-card">
+                    <div class="media-thumb">
+                        <div class="media-thumb-bg">📄</div>
+                        <div class="pdf-badge">PDF</div>
+                    </div>
+                    <div class="media-info"><div class="media-title">Tập huấn SD SGK Tiếng Việt 1 (bản PDF)</div></div>
+                </div>
+                <div class="media-card">
+                    <div class="media-thumb">
+                        <div class="media-thumb-bg">📊</div>
+                        <div class="ppt-badge">PPT</div>
+                    </div>
+                    <div class="media-info"><div class="media-title">Tập huấn SD SGK Tiếng Việt 1 (bản PPT)</div></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// Grade tab switching
+document.querySelectorAll('.grade-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.grade-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+    });
+});
+
+// Filter radio/checkbox animation
+document.querySelectorAll('.filter-radio input, .filter-check input').forEach(input => {
+    input.addEventListener('change', () => {
+        const label = input.closest('label');
+        label.style.color = input.checked ? 'var(--primary)' : '';
+    });
+});
+
+// Clear filters
+document.querySelector('.btn-clear').addEventListener('click', () => {
+    document.querySelectorAll('.filter-radio input').forEach((r, i) => r.checked = i === 0);
+    document.querySelectorAll('.filter-check input').forEach(c => c.checked = false);
+});
+</script>
+</body>
+</html>
